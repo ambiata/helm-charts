@@ -1,0 +1,36 @@
+# Default values for postgres-db-manager.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+image:
+  repository: docker.io/bitnami/postgresql
+  pullPolicy: IfNotPresent
+  tag: 11.7.0-debian-10-r43
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# List of dbs that need to be created
+databases: []
+# - name: db_1
+# - name: db_2
+
+# List of users with their accesses
+users: []
+# - username: alice
+#   passwordSecretName: my-secret
+#   passwordSecretKey: alice-db-password
+#   accesses:
+#   - db: db_1
+#     readOnly: true (false by default)
+#   - db: db_2
+
+postgresqlAdminCredentials:
+  initDb: ""
+  secretName: ""
+  secretKeys:
+    host: PGHOST
+    password: PGPASSWORD
+    user: PGUSER
+    port: PGPORT
