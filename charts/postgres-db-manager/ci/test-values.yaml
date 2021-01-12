@@ -2,7 +2,7 @@
 
 # List of dbs that need to be created
 databases:
-- name: my_app
+- name: my-app
 
 # List of users with their accesses
 users:
@@ -10,7 +10,7 @@ users:
   passwordSecretName: my-secret
   passwordSecretKey: alice-db-password
   accesses:
-  - db: my_app
+  - db: my-app
     readOnly: true
 
 # Way to connect to the database
