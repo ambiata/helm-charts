@@ -1,0 +1,42 @@
+{{- range $.Values.users }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-user-{{ .username }}
+spec:
+  backoffLimit: 4
+  activeDeadlineSeconds: 120
+  template:
+    metadata:
+      {{- with $.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      containers:
+      - name: create-user
+        image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
+        command:
+          - /bin/bash
+          - -c
+          - |
+            if [ "$( psql -tAc "SELECT 1 FROM pg_roles where rolname='${USER}'" )" != '1' ]
+            then
+              echo "Creating ${USER} user on Postgresql"
+              psql -c "CREATE USER ${USER} WITH PASSWORD '${PASSWORD}';"
+            else
+              echo "User ${USER} already exists!"
+            fi
+        env:
+        - name: USER
+          value: {{ .username }}
+        - name: PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .passwordSecretName }}
+              key: {{ .passwordSecretKey }}
+        {{- include "postgres-db-manager.postgresqlAdminCredentialEnvs" $.Values.postgresqlAdminCredentials | indent 8 }}
+      restartPolicy: Never
+---
+{{- end }}

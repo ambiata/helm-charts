@@ -1,0 +1,64 @@
+{{- range $.Values.users }}
+{{- $username := .username -}}
+{{- range .accesses }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: grant-access-{{ $username }}-{{ .db }}{{ if .readOnly }}-readonly{{ end }}
+spec:
+  backoffLimit: 4
+  activeDeadlineSeconds: 120
+  template:
+    metadata:
+      {{- with $.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      containers:
+      - name: create-user
+        image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
+        command:
+          - /bin/bash
+          - -c
+          - |
+            RUN_TIME=0
+            TIMEOUT=60 # 1 minute timeout
+            RETRY_DELAY=1
+            while [ "$( psql -tAc "SELECT 1 FROM pg_database WHERE datname='${DB}'" )" != '1' ] || [ "$( psql -tAc "SELECT 1 FROM pg_roles where rolname='${USER}'" )" != '1' ];
+            do
+              if [ $RUN_TIME > $TIMEOUT ]
+              then
+                echo "${DB} or ${USER} does not exist"
+                exit 1
+              fi
+
+              echo "Wait for ${DB} and ${USER}"
+              sleep $RETRY_DELAY
+              $RUN_TIME = $RUN_TIME + $RETRY_DELAY
+            done
+            
+            if [ "$READ_ONLY" = true ]
+            then
+              psql -c "GRANT CONNECT ON DATABASE ${DB} TO ${USER};"
+              psql -d ${DB} -c "GRANT USAGE ON SCHEMA public TO ${USER};"
+              psql -d ${DB} -c "GRANT SELECT ON ALL TABLES IN SCHEMA public TO ${USER};"
+              psql -d ${DB} -c "GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO ${USER};"
+              echo "${USER} has readonly access to the database ${DB}"
+            else
+              psql -c "GRANT ALL PRIVILEGES ON DATABASE database_name TO ${USER};"
+              echo "${USER} has full access to the database ${DB}"
+            fi
+        env:
+        - name: USER
+          value: {{ $username }}
+        - name: DB
+          value: {{ .db }}
+        - name: READ_ONLY
+          value: {{ .readOnly | default false | quote }}
+        {{- include "postgres-db-manager.postgresqlAdminCredentialEnvs" $.Values.postgresqlAdminCredentials | indent 8 }}
+      restartPolicy: Never
+---
+{{- end }}
+{{- end }}

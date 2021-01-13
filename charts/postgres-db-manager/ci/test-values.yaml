@@ -1,0 +1,24 @@
+# Test values for atmosphere (local test only)
+
+# List of dbs that need to be created
+databases:
+- name: my-app
+
+# List of users with their accesses
+users:
+- username: alice
+  passwordSecretName: my-secret
+  passwordSecretKey: alice-db-password
+  accesses:
+  - db: my-app
+    readOnly: true
+
+# Way to connect to the database
+postgresqlAdminCredentials:
+  initDb: init_db
+  secretName: my-secret
+  secretKeys:
+    host: PGHOST
+    password: PGPASSWORD
+    user: PGUSER
+    port: PGPORT

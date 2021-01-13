@@ -1,0 +1,42 @@
+{{- range $.Values.databases }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-db-{{ .name }}
+spec:
+  backoffLimit: 4
+  activeDeadlineSeconds: 120
+  template:
+    metadata:
+      {{- with $.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with $.Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: create-db
+        image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
+        command:
+          - /bin/bash
+          - -c
+          - |
+            if [ "$( psql -tAc "SELECT 1 FROM pg_database WHERE datname='${DB_TO_CREATE}'" )" != '1' ]
+            then
+                echo "Creating database ${DB_TO_CREATE}"
+                createdb $DB_TO_CREATE
+                echo "Database ${DB_TO_CREATE} created"
+            else
+                echo "Database ${DB_TO_CREATE} already exists"
+            fi
+        env:
+        - name: DB_TO_CREATE
+          value: {{ .name }}
+        {{- include "postgres-db-manager.postgresqlAdminCredentialEnvs" $.Values.postgresqlAdminCredentials | indent 8 }}
+      restartPolicy: Never
+---
+{{- end }}
