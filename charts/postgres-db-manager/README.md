@@ -36,5 +36,5 @@ The following table lists the parameters of this chart.
 
 To generate the manifest:
 ```shell
-helm template my-release charts/atmosphere -f charts/atmosphere/required-values.yaml --debug
+helm template my-release charts/postgres-db-manager -f charts/postgres-db-manager/ci/test-values.yaml --debug
 ```
