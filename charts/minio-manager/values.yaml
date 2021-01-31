@@ -1,0 +1,31 @@
+# Default values for minio-manager.
+# This is a YAML-formatted file.
+
+image:
+  repository: minio/mc
+  pullPolicy: IfNotPresent
+  tag: RELEASE.2020-04-04T05-28-55Z
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# List of users with their accesses
+users: []
+# - userCredentialsSecret: my-secret
+#   usernameSecretKey: username
+#   passwordSecretKey: password
+#   policy: readwrite
+
+policies: []
+# - name: new-policy
+#   readOnly: true (default to true)
+#   buckets: []
+
+minioAdminCredentials:
+  secretName: ""
+  secretKeys:
+    accessKey: MINIO_ACCESS_KEY
+    secretKey: MINIO_SECRET_KEY
+    endpointUrl: MINIO_ENDPOINT_URL
+    useSsl: MINIO_USE_SSL

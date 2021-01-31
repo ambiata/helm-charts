@@ -1,0 +1,81 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    "helm.sh/hook": "pre-install, pre-upgrade, pre-rollback"
+    "helm.sh/hook-delete-policy": before-hook-creation
+  name: minio-manager-global
+spec:
+  backoffLimit: 4
+  activeDeadlineSeconds: 120
+  template:
+    metadata:
+      {{- with $.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      initContainers:
+      - name: create-policies
+        image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
+        command:
+          - /bin/sh
+          - -c
+          - -e
+          - |
+            while [ -z "$(mc config host add minio ${MINIO_ENDPOINT} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY})" ] ; do echo 'Wait minio to startup...' && sleep 0.1; done;
+            {{- range $.Values.policies }}
+            {{- include "minio-manager.createPolicyFileBash" . | indent 12 }}
+            mc admin policy add minio {{ required "policies[i].name required" .name }} policy-{{ .name }}.json
+            {{- end }}
+        env:
+        {{- include "minio-manager.minioAdminCredentialEnvs" $.Values.minioAdminCredentials | indent 8 }}
+      - name: create-users
+        image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
+        command:
+          - /bin/sh
+          - -c
+          - -e
+          - |
+            while [ -z "$(mc config host add minio ${MINIO_ENDPOINT} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY})" ] ; do echo 'Wait minio to startup...' && sleep 0.1; done;
+            {{- range $index, $user := .Values.users }}
+            mc admin user add minio ${USER{{ $index }}} ${PASSWORD{{ $index }}}
+            {{- end }}
+        env:
+        {{- range $index, $user := .Values.users }}
+        {{- $ur := dict "index" $index "user" $user -}}
+        {{- include "user-env-var" $ur | indent 8 }}
+        - name: PASSWORD{{ $index }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ $user.userCredentialsSecret }}
+              key: {{ $user.passwordSecretKey | default "password" }}
+        {{- end }}
+        {{- include "minio-manager.minioAdminCredentialEnvs" $.Values.minioAdminCredentials | indent 8 }}
+      containers:
+      - name: grant-accesses
+        image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
+        command:
+          - /bin/sh
+          - -c
+          - -e
+          - |
+            while [ -z "$(mc config host add minio ${MINIO_ENDPOINT} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY})" ] ; do echo 'Wait minio to startup...' && sleep 0.1; done;
+            {{- range $index, $user := .Values.users }}
+            mc admin policy set minio ${POLICY{{ $index }}} user=${USER{{ $index }}}
+            {{- end }}
+        env:
+        {{- range $index, $user := .Values.users }}
+        {{- $policy := ( $user.policy | default "readonly") }}
+        {{- $ur := dict "index" $index "user" $user -}}
+        {{- include "user-env-var" $ur | indent 8 }}
+        - name: POLICY{{ $index }}
+          value: {{ $policy }}
+        {{- end }}
+        {{- include "minio-manager.minioAdminCredentialEnvs" $.Values.minioAdminCredentials | indent 8 }}
+      restartPolicy: Never
+---
+
