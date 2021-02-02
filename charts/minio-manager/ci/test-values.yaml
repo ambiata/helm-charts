@@ -1,18 +1,24 @@
 # Test values for atmosphere (local test only)
 
+# List of buckets to create
+buckets:
+  - bucket1
+  - bucket2
+  - bucket3
+
 # List of users with their accesses
 users:
-- userCredentialsSecret: alice-minio-secret
-  usernameSecretKey: username1
-  passwordSecretKey: password1
-  policy: policy-bucket1and2
-- userCredentialsSecret: bob-minio-secret
-  usernameSecretKey: username2
-  passwordSecretKey: password2
-  policy: readonly
-- userCredentialsSecret: carl-minio-secret
-  policy: policy-bucket3
-- userCredentialsSecret: dave-minio-secret
+  - userCredentialsSecret: alice-minio-secret
+    usernameSecretKey: username1
+    passwordSecretKey: password1
+    policy: policy-bucket1and2
+  - userCredentialsSecret: bob-minio-secret
+    usernameSecretKey: username2
+    passwordSecretKey: password2
+    policy: readonly
+  - userCredentialsSecret: carl-minio-secret
+    policy: policy-bucket3
+  - userCredentialsSecret: dave-minio-secret
 
 policies:
   - name: policy-bucket1and2
