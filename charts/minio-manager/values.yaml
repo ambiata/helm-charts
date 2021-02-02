@@ -10,6 +10,11 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+# List of buckets to create
+buckets: []
+# - bucket1
+# - bucket2
+
 # List of users with their accesses
 users: []
 # - userCredentialsSecret: my-secret
