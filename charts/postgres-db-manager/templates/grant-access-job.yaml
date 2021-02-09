@@ -26,7 +26,7 @@ spec:
             RUN_TIME=0
             TIMEOUT=60 # 1 minute timeout
             RETRY_DELAY=1
-            while [ "$( psql -tAc "SELECT 1 FROM pg_database WHERE datname='${DB}'" )" != '1' ] || [ "$( psql -tAc "SELECT 1 FROM pg_roles where rolname='${USER}'" )" != '1' ];
+            while [ "$( psql -tAc "SELECT 1 FROM pg_database WHERE datname='${DB}'" )" != '1' ] || [ "$( psql -tAc "SELECT 1 FROM pg_roles where rolname=\"${USER}\"" )" != '1' ];
             do
               if [ $RUN_TIME > $TIMEOUT ]
               then
@@ -41,14 +41,14 @@ spec:
             
             if [ "$READ_ONLY" = true ]
             then
-              psql -c "GRANT CONNECT ON DATABASE ${DB} TO ${USER};"
-              psql -d ${DB} -c "GRANT USAGE ON SCHEMA public TO ${USER};"
-              psql -d ${DB} -c "GRANT SELECT ON ALL TABLES IN SCHEMA public TO ${USER};"
-              psql -d ${DB} -c "GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO ${USER};"
-              echo "${USER} has readonly access to the database ${DB}"
+              psql -c "GRANT CONNECT ON DATABASE \"${DB}\" TO \"${USER}\";"
+              psql -d ${DB} -c "GRANT USAGE ON SCHEMA public TO \"${USER}\";"
+              psql -d ${DB} -c "GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"${USER}\";"
+              psql -d ${DB} -c "GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO \"${USER}\";"
+              echo "${USER} now has readonly access to the database ${DB}"
             else
-              psql -c "GRANT ALL PRIVILEGES ON DATABASE database_name TO ${USER};"
-              echo "${USER} has full access to the database ${DB}"
+              psql -c "GRANT ALL PRIVILEGES ON DATABASE database_name TO \"${USER}\";"
+              echo "${USER} now has full access to the database ${DB}"
             fi
         env:
         - name: USER

@@ -21,10 +21,10 @@ spec:
           - /bin/bash
           - -c
           - |
-            if [ "$( psql -tAc "SELECT 1 FROM pg_roles where rolname='${USER}'" )" != '1' ]
+            if [ "$( psql -tAc "SELECT 1 FROM pg_roles where rolname=\"${USER}\"" )" != '1' ]
             then
               echo "Creating ${USER} user on Postgresql"
-              psql -c "CREATE USER '${USER}' WITH PASSWORD '${PASSWORD}';"
+              psql -c "CREATE USER \"${USER}\" WITH PASSWORD '${PASSWORD}';"
             else
               echo "User ${USER} already exists!"
             fi
