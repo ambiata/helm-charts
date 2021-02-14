@@ -1,0 +1,2 @@
+1. Find the job in JOBS under cron jobs: {{ include "pgdbsync.fullname" . }}
+2. Trigger the job to test it

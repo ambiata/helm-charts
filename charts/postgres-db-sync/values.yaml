@@ -1,0 +1,58 @@
+# Default values for postgres-db-sync.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+
+# TODO: FIX in between
+
+# Default values for iag/stage.
+
+image:
+  repository: "193568805012.dkr.ecr.ap-southeast-2.amazonaws.com/atmosphere/utility"
+  pullPolicy: IfNotPresent
+  tag: "v1.2.6"
+
+# imagePullSecrets:
+#   - name: "ecr-registry-secret"
+
+cronjob:
+  schedule: "@hourly"
+  lagMinutes: "60"
+  truncateTargetTable: "FALSE"
+  restartPolicy: "Never"
+
+# Make sure to override if your secret is different!
+
+source:
+  secret: ""
+  host: ""
+  user: ""
+  passwordKey: ""
+  db: ""
+  schema: "public"
+  table: ""
+  timestamp_column: ""
+
+target:
+  secret:
+  host: ""
+  user: ""
+  passwordKey: ""
+  db: ""
+  schema: "public"
+  table: ""
+  timestamp_column: ""
