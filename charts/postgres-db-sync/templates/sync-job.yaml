@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: {{ include "pgdbsync.fullname" . }}
 spec:
-  schedule: "{{ .Values.cronjob.schedule }}"
+  schedule: "{{ $.Values.cronjob.schedule }}"
   concurrencyPolicy: "Forbid"
   jobTemplate:
     spec:
@@ -11,21 +11,36 @@ spec:
         spec:
           containers:
           - name: postgres-to-postgres-sync-cronjob
-            image: {{ printf "%s:%s" .Values.image.repository .Values.image.tag }}
-            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            image: {{ printf "%s:%s" $.Values.image.repository $.Values.image.tag }}
+            imagePullPolicy: {{ $.Values.image.pullPolicy }}
             command: ["/bin/bash", "-c"]
             args:
               - date;
 
-                echo "Synchronize ${SOURCE_SCHEMA}.\"${SOURCE_TABLE}\" to ${TARGET_SCHEMA}.\"${TARGET_TABLE}\"";
-                export TARGET_PGUSER=${TARGET_PGUSER:-postgres};
+              {{- range $mapping := $.Values.tableMappings }}
+                {{ $inputDB := get $.Values.dbs .inputDB }}
+                {{ $outputDB := get $.Values.dbs .outputDB }}
 
-                if [[ "$truncateTargetTable" == "TRUE" ]];
-                then 
-                  echo "Truncating ${TARGET_SCHEMA}.\"${TARGET_TABLE}\""; 
-                  PGHOST=$TARGET_PGHOST PGDATABASE=$TARGET_PGDATABASE PGUSER=$TARGET_PGUSER PGPASSWORD=$TARGET_PGPASSWORD;
-                  psql -c "TRUNCATE TABLE ${TARGET_SCHEMA}.\"${TARGET_TABLE}\";"; 
-                fi;
+                {{ println $inputDB.name $outputDB.name }}
+
+
+
+                echo "Synchronize {{ $inputDB.name }}:{{ .inputSchema  }}.\"{{ .inputTable }}\""
+                echo "to {{ $outputDB.name }}:{{ .outputSchema }}.\"${{ .outputTable }}\"";
+
+                {{ if $.Values.cronjob.truncateTargetTable }}
+                echo "Truncating {{ $outputDB.name }}:{{ .outputSchema }}.\"${{ .outputTable }}"
+
+                PGHOST={{ $outputDB.host }} PGDATABASE={{ $outputDB.name }} PGUSER={{ $outputDB.user }} PGPASSWORD=${{ .inputDB }};
+                psql -c "TRUNCATE TABLE ${TARGET_SCHEMA}.\"${TARGET_TABLE}\";"; 
+                {{ end }}
+
+
+
+              {{ end }}
+
+                {{- /*
+
 
                 export OLDEST_RECORD=`(PGHOST=$TARGET_PGHOST PGDATABASE=$TARGET_PGDATABASE PGUSER=$TARGET_PGUSER PGPASSWORD=$TARGET_PGPASSWORD psql --tuples-only -c "SELECT COALESCE(MAX(\"${TARGET_TIMESTAMP_COLUMN}\"),'2020-01-01 00:00:00'::timestamp) FROM ${TARGET_SCHEMA}.\"${TARGET_TABLE}\";")`;
 
@@ -42,58 +57,24 @@ spec:
                 export MESSAGE="${ENVIRONMENT} | ${EXPORTED_RECORDS} records exported from ${SOURCE_SCHEMA}.\"${SOURCE_TABLE}\" | ${IMPORTED_RECORDS} records imported to ${TARGET_SCHEMA}.\"${TARGET_TABLE}\"";
 
                 # Make PROM metrics here
+                */}}
             env:
-              - name: ENVIRONMENT
-                value: {{ .Release.Name }}
-              - name: lagMinutes
-                value: "{{ .Values.cronjob.lagMinutes }}"
-              - name: truncateTargetTable
-                {{- if .Values.cronjob.truncateTargetTable }}
-                value: "{{ .Values.cronjob.truncateTargetTable }}"
-                {{- else }}
-                value: "FALSE"
-                {{- end }}
-
-              - name: SOURCE_PGHOST
-                value: {{ required "Source host is required" .Values.source.host }}
-              - name: SOURCE_PGUSER
-                value: {{ required "Source user is required" .Values.source.user }}
-              - name: SOURCE_PGPASSWORD
+              # Need this for all the screts in DBS...
+              # We export passwords to env variables by the DB nickname given in values
+              {{ range $db, $dbValues := $.Values.dbs }}
+              - name: {{ $dbValues.name }}
                 valueFrom:
                   secretKeyRef:
-                    name: {{ .Values.source.secret }}
-                    key: {{ .Values.source.passwordKey }}
-              - name: SOURCE_PGDATABASE
-                value: {{ .Values.source.db | required "Source DB is required" }}
-              - name: SOURCE_SCHEMA
-                value: {{ .Values.source.schema | required "Source schema is required" }}
-              - name: SOURCE_TABLE
-                value: {{ .Values.source.table | required "Source table is required" }}
-              - name: SOURCE_TIMESTAMP_COLUMN
-                value: {{ .Values.source.timestamp_column | required "Source timestamp column is required" }}
+                    name: {{ $dbValues.secret }}
+                    key: {{ $dbValues.passwordKey }}
+              {{ end }}
+              
 
-              - name: TARGET_PGHOST
-                value: {{ .Values.target.host | required "Target host is required" }}
-              - name: TARGET_PGUSER
-                value: {{ .Values.target.user | required "Target user is required" }}
-              - name: TARGET_PGPASSWORD
-                valueFrom:
-                  secretKeyRef:
-                    name: {{ .Values.target.secret }}
-                    key: {{ .Values.target.passwordKey }}
-              - name: TARGET_PGDATABASE
-                value: {{ .Values.target.db | required "Target DB is required" }}
-              - name: TARGET_SCHEMA
-                value: {{ .Values.target.schema | required "Target schema is required" }}
-              - name: TARGET_TABLE
-                value: {{ .Values.target.table | required "Target table is required" }}
-              - name: TARGET_TIMESTAMP_COLUMN
-                value: {{ .Values.target.timestamp_column | required "Target timestamp column is required" }}
 
-          restartPolicy: {{ .Values.cronjob.restartPolicy }}
+          restartPolicy: {{ $.Values.cronjob.restartPolicy }}
 
-          {{- if .Values.imagePullSecrets }}
+          {{- if $.Values.imagePullSecrets }}
           imagePullSecrets:
-            {{- toYaml .Values.imagePullSecrets | nindent 12 }}
-            - name: {{ .Values.imagePullSecrets }}
+            {{- toYaml $.Values.imagePullSecrets | nindent 12 }}
+            - name: {{ $.Values.imagePullSecrets }}
           {{- end }}

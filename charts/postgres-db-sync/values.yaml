@@ -1,26 +1,9 @@
-# Default values for postgres-db-sync.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
 imagePullSecrets: []
+# TODO = implement LIST here?
 nameOverride: ""
 fullnameOverride: ""
 
-podAnnotations: {}
-
-podSecurityContext: {}
-  # fsGroup: 2000
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
-
-
-# TODO: FIX in between
-
-# Default values for iag/stage.
-
+# TODO = Generic base image
 image:
   repository: "193568805012.dkr.ecr.ap-southeast-2.amazonaws.com/atmosphere/utility"
   pullPolicy: IfNotPresent
@@ -35,24 +18,41 @@ cronjob:
   truncateTargetTable: "FALSE"
   restartPolicy: "Never"
 
-# Make sure to override if your secret is different!
+# Provide the DBs to reference later in the table mappings
 
-source:
-  secret: ""
-  host: ""
-  user: ""
-  passwordKey: ""
-  db: ""
-  schema: "public"
-  table: ""
-  timestamp_column: ""
+dbs:
+  # These db nicknames are used when we export env variables
+  # To access the passwords for the DB since
+  # secretKeyRef is the only way to get data from the secret
+  sourceDB1:
+    secret: "postgres-secret-0"
+    host: "localhost:9999"
+    user: "jope"
+    passwordKey: "postgres-password"
+    name: "gooddb"
 
-target:
-  secret:
-  host: ""
-  user: ""
-  passwordKey: ""
-  db: ""
-  schema: "public"
-  table: ""
-  timestamp_column: ""
+  targetDB1:
+    secret: "outside-postgres-secret-0"
+    host: "my-other-server.server"
+    user: "tradmin"
+    passwordKey: "pgpass"
+    name: "otherdb"
+
+# Now make the table mappings
+
+tableMappings:
+  - inputTable: predictions 
+    inputSchema: public
+    inputDB: sourceDB1
+    timestampColumn: time_column
+    outputTable: output_name_bar
+    outputDB: targetDB1
+    outputSchema: public
+   
+  - inputTable: outcomes
+    inputSchema: public
+    inputDB: sourceDB1
+    timestampColumn: time_column
+    outputTable: output_name_bar
+    outputDB: targetDB1
+    outputSchema: public
