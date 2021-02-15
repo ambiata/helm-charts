@@ -7,6 +7,8 @@ buckets:
     purge: true
   bucket3:
     policy: upload
+  bucket4:
+    versioning: true
 
 # List of users with their accesses
 users:

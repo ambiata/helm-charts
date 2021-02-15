@@ -5,6 +5,8 @@
 This chart manages buckets, users and access rights for [Minio](https://min.io/) on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
 This chart only handles the creation of these resources. It does not manage their deletions.
 
+To use the `versioning` option on bucket creation, the deployed minio must be [distributed](https://docs.min.io/docs/distributed-minio-quickstart-guide.html).
+
 ## Prerequisites
 
 - Kubernetes 1.12+
@@ -40,13 +42,14 @@ The following table lists the parameters of this chart.
 |`minioAdminCredentials.secretKeys.useSsl`        | Name of the secret key for use ssl field                                   |MINIO_USE_SSL               |
 |`image.repository`                               | Repository of the minio image                                              |minio/mc                    |
 |`image.pullPolicy`                               | Kubernetes image pull policy                                               |IfNotPresent                |
-|`image.tag`                                      | Tag of the minio image                                                     |RELEASE.2021-01-05T05-03-58Z|
+|`image.tag`                                      | Tag of the minio image                                                     |RELEASE.2020-11-25T23-04-07Z|
 |`imagePullSecrets`                               | List of kubertnetes image pull secrets                                     |                            |
 |`nameOverride`                                   | Override the name of the chart                                             |                            |
 |`fullnameOverride`                               | Override the full name of the chart and component                          |                            |
 |`buckets`                                        | Buckets to create as a YAML object. The key is the name of the bucket      |{}                          |
 |`buckets.[name].policy`                          | Policy applied on the bucket for anonymous users. Allowed policies are: [none, download, upload, public] (https://docs.min.io/docs/minio-client-complete-guide.html#policy) |none |
 |`buckets.[name].purge`                           | Purge the bucket if already existent if set to true                        |false                       |
+|`buckets.[name].versioning`                      | Select if the bucket should be versioned or not. If unset, the bucket versioning will be unchanged. https://docs.min.io/docs/minio-bucket-versioning-guide.html|"" |
 
 ## Local test
 
