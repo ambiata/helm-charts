@@ -11,9 +11,13 @@ nameOverride: ""
 fullnameOverride: ""
 
 # List of buckets to create
-buckets: []
-# - bucket1
-# - bucket2
+buckets: {}
+#  bucket1: # name of the bucket to create
+#     policy: ""  # Set a policy for anonymous users on this bucket. Allowed policies are: [none, download, upload, public] (https://docs.min.io/docs/minio-client-complete-guide.html#policy)
+#     purge: false  # purge the bucket if already exists if set to true
+#  bucket2
+#     policy: ""
+#     purge: ""
 
 # List of users with their accesses
 users: []

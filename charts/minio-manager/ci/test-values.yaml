@@ -2,9 +2,11 @@
 
 # List of buckets to create
 buckets:
-  - bucket1
-  - bucket2
-  - bucket3
+  bucket1: {}
+  bucket2:
+    purge: true
+  bucket3:
+    policy: upload
 
 # List of users with their accesses
 users:

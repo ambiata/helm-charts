@@ -84,10 +84,73 @@ spec:
           - -c
           - -e
           - |
+            # From https://github.com/minio/charts/blob/master/minio/templates/_helper_create_bucket.txt
+            # checkBucketExists ($bucket)
+            # Check if the bucket exists, by using the exit code of `mc ls`
+            checkBucketExists() {
+              BUCKET=$1
+              CMD=$(mc ls minio/$BUCKET > /dev/null 2>&1)
+              return $?
+            }
+
+            # createBucket ($bucket, $policy, $purge, $versioning)
+            # Ensure bucket exists, purging if asked to
+            createBucket() {
+              BUCKET=$1
+              POLICY=$2
+              PURGE=$3
+              VERSIONING=$4
+
+              # Purge the bucket, if set & exists
+              # Since PURGE is user input, check explicitly for `true`
+              if [ $PURGE = true ]; then
+                if checkBucketExists $BUCKET ; then
+                  echo "Purging bucket '$BUCKET'."
+                  set +e ; # don't exit if this fails
+                  mc rm -r --force minio/$BUCKET
+                  set -e ; # reset `e` as active
+                else
+                  echo "Bucket '$BUCKET' does not exist, skipping purge."
+                fi
+              fi
+
+              # Create the bucket if it does not exist
+              if ! checkBucketExists $BUCKET ; then
+                echo "Creating bucket '$BUCKET'"
+                mc mb minio/$BUCKET
+              else
+                echo "Bucket '$BUCKET' already exists."
+              fi
+
+              # Versioning feature available only from RELEASE.2020-07-11T06-07-16Z
+              # https://github.com/minio/minio/releases/tag/RELEASE.2020-07-11T06-07-16Z
+              # Currently using RELEASE.2020-04-04T05-28-55Z
+              # When updated, we can add back the following lines
+              # set versioning for bucket
+              #if [ ! -z $VERSIONING ] ; then
+              #  if [ $VERSIONING = true ] ; then
+              #      echo "Enabling versioning for '$BUCKET'"
+              #      mc version enable minio/$BUCKET
+              #  elif [ $VERSIONING = false ] ; then
+              #      echo "Suspending versioning for '$BUCKET'"
+              #      mc version suspend minio/$BUCKET
+              #  fi
+              #else
+              #    echo "Bucket '$BUCKET' versioning unchanged."
+              #fi
+
+              # At this point, the bucket should exist, skip checking for existence
+              # Set policy on the bucket
+              echo "Setting policy of bucket '$BUCKET' to '$POLICY'."
+              mc policy set $POLICY minio/$BUCKET
+            }
+
             while [ -z "$(mc config host add minio ${MINIO_ENDPOINT} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY})" ] ; do echo 'Wait minio to startup...' && sleep 0.1; done;
-            {{- range $bucket := $.Values.buckets }}
-            mc mb --ignore-existsing minio/{{ $bucket }}
-            {{- end }}
+            {{ range $bucket_name, $bucket := $.Values.buckets }}
+            {{- $bucket_purge := ($bucket.purge | default false) -}}
+            {{- $bucket_policy := $bucket.policy | default "none" -}}
+            createBucket {{ $bucket_name }} {{ $bucket_policy }} {{ $bucket_purge }}
+            {{ end }}
         env:
         {{- include "minio-manager.minioAdminCredentialEnvs" $.Values.minioAdminCredentials | indent 8 }}
       restartPolicy: Never
