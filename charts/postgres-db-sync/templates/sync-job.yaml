@@ -49,7 +49,6 @@ spec:
                 echo "Oldest record timestamp at target ${OLDEST_RECORD}";
 
                 # Input DB Connection
-                echo "export PGHOST={{ $inputDB.host }} PGDATABASE={{ $inputDB.name }} PGUSER={{ $inputDB.user }} PGPASSWORD=$PASS_{{ .inputDB }};";
                 export PGHOST={{ $inputDB.host }} PGDATABASE={{ $inputDB.name }} PGUSER={{ $inputDB.user }} PGPASSWORD=$PASS_{{ .inputDB }};
 
                 # Copy all newer records from the input table -> CSV
