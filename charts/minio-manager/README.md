@@ -11,6 +11,16 @@ This chart only handles the creation of these resources. It does not manage thei
 - Helm 3
 - Minio instance running
 
+### Minio compatibilities
+
+The default minio client version used in this chart has been selected to work with the minio deployment we are using.
+The user of this chart must validate the compatibility of the minio deployment and the minio client used in this chart.
+
+| Chart version  | Default minio client image             | Expected minio deployment              |
+|:---------------|:---------------------------------------|:---------------------------------------|
+|0.2.0           |[minio/mc:RELEASE.2020-04-04T05-28-55Z](https://github.com/minio/mc/releases/tag/RELEASE.2020-04-04T05-28-55Z)   |[minio/minio:RELEASE.2020-04-10T03-34-42Z](https://github.com/minio/minio/releases/tag/RELEASE.2020-04-10T03-34-42Z)|
+
+
 ## Parameters
 
 The following table lists the parameters of this chart.
