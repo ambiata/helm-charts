@@ -21,7 +21,7 @@ The user of this chart must validate the compatibility of the minio deployment a
 | Chart version  | Default minio client image             | Expected minio deployment              |
 |:---------------|:---------------------------------------|:---------------------------------------|
 |0.2.0           |[minio/mc:RELEASE.2020-04-04T05-28-55Z](https://github.com/minio/mc/releases/tag/RELEASE.2020-04-04T05-28-55Z)   |[minio/minio:RELEASE.2020-04-10T03-34-42Z](https://github.com/minio/minio/releases/tag/RELEASE.2020-04-10T03-34-42Z)|
-
+|0.3.0           |[minio/mc:RELEASE.2020-11-25T23-04-07Z](https://github.com/minio/mc/releases/tag/RELEASE.2020-11-25T23-04-07Z)   |[minio/minio:RELEASE.2020-12-03T05-49-24Z](https://github.com/minio/minio/releases/tag/RELEASE.2020-12-03T05-49-24Z)|
 
 ## Parameters
 
