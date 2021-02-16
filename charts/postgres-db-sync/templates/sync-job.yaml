@@ -13,68 +13,82 @@ spec:
           - name: postgres-to-postgres-sync-cronjob
             image: {{ printf "%s:%s" $.Values.image.repository $.Values.image.tag }}
             imagePullPolicy: {{ $.Values.image.pullPolicy }}
-            command: ["/bin/bash", "-c"]
-            args:
-              - date;
+            command: 
+              - "/bin/bash"
+              - "-c"
+              - |
+                /bin/bash <<'EOF'
 
-              {{- range $mapping := $.Values.tableMappings }}
-                {{ $inputDB := get $.Values.dbs .inputDB }}
-                {{ $outputDB := get $.Values.dbs .outputDB }}
+                date;
 
-                {{ println $inputDB.name $outputDB.name }}
+                {{- /* Iterate through each table mapping (Input table -> Output table) */}}
+                {{- range $mapping := $.Values.tableMappings }}
 
+                {{- /* Get the DB info from the dbs dictionary */}}
+                {{- $inputDB := get $.Values.dbs .inputDB }}
+                {{- $outputDB := get $.Values.dbs .outputDB }}
 
+                echo "Synchronize {{ $inputDB.name }}:{{ .inputSchema  }}.\"{{ .inputTable }}\"";
+                echo "to {{ $outputDB.name }}:{{ .outputSchema }}.\"{{ .outputTable }}\"";
 
-                echo "Synchronize {{ $inputDB.name }}:{{ .inputSchema  }}.\"{{ .inputTable }}\""
-                echo "to {{ $outputDB.name }}:{{ .outputSchema }}.\"${{ .outputTable }}\"";
+                # Output DB Connection
+                export PGHOST={{ $outputDB.host }} PGDATABASE={{ $outputDB.name }} PGUSER={{ $outputDB.user }} PGPASSWORD=${PASS_{{ .outputDB }}};
 
                 {{ if $.Values.cronjob.truncateTargetTable }}
-                echo "Truncating {{ $outputDB.name }}:{{ .outputSchema }}.\"${{ .outputTable }}"
-
-                PGHOST={{ $outputDB.host }} PGDATABASE={{ $outputDB.name }} PGUSER={{ $outputDB.user }} PGPASSWORD=${{ .inputDB }};
-                psql -c "TRUNCATE TABLE ${TARGET_SCHEMA}.\"${TARGET_TABLE}\";"; 
+                echo "Truncating {{ $outputDB.name }}:{{ .outputSchema }}.\"{{ .outputTable }}";
+                psql -c "TRUNCATE TABLE {{ .outputSchema }}.\"{{ .outputTable }}\";";
                 {{ end }}
 
-
-
-              {{ end }}
-
-                {{- /*
-
-
-                export OLDEST_RECORD=`(PGHOST=$TARGET_PGHOST PGDATABASE=$TARGET_PGDATABASE PGUSER=$TARGET_PGUSER PGPASSWORD=$TARGET_PGPASSWORD psql --tuples-only -c "SELECT COALESCE(MAX(\"${TARGET_TIMESTAMP_COLUMN}\"),'2020-01-01 00:00:00'::timestamp) FROM ${TARGET_SCHEMA}.\"${TARGET_TABLE}\";")`;
+                # Find the oldest record in the output table so that we can export all the
+                # newer records than this
+                export OLDEST_RECORD=`(psql --tuples-only -c " \
+                  SELECT COALESCE(MAX(\"{{ .timestampColumn }}\"),'2020-01-01 00:00:00'::timestamp) \
+                  FROM {{ .outputSchema }}.\"{{ .outputTable }}\"; \
+                ")`;
 
                 echo "Oldest record timestamp at target ${OLDEST_RECORD}";
 
-                export EXPORTED_RECORDS=`(PGHOST=$SOURCE_PGHOST PGDATABASE=$SOURCE_PGDATABASE PGUSER=$SOURCE_PGUSER PGPASSWORD=$SOURCE_PGPASSWORD psql -c "\copy (SELECT * FROM ${SOURCE_SCHEMA}.\"${SOURCE_TABLE}\" WHERE \"${SOURCE_TIMESTAMP_COLUMN}\" > '${OLDEST_RECORD}'::timestamp AND \"${SOURCE_TIMESTAMP_COLUMN}\" < now()::timestamp - interval '${lagMinutes}' minute) TO '/tmp/pg-to-pg-sync.copy' WITH CSV;" | sed 's/COPY //g')`;
+                # Input DB Connection
+                echo "export PGHOST={{ $inputDB.host }} PGDATABASE={{ $inputDB.name }} PGUSER={{ $inputDB.user }} PGPASSWORD=$PASS_{{ .inputDB }};";
+                export PGHOST={{ $inputDB.host }} PGDATABASE={{ $inputDB.name }} PGUSER={{ $inputDB.user }} PGPASSWORD=$PASS_{{ .inputDB }};
 
-                echo "${EXPORTED_RECORDS} records exported from ${SOURCE_SCHEMA}.\"${SOURCE_TABLE}\"";
+                # Copy all newer records from the input table -> CSV
+                export EXPORTED_RECORDS=`(psql -c "\copy  \
+                (SELECT * FROM {{ .inputSchema }}.\"{{ .inputTable }}\"  \
+                WHERE \"{{ .timestampColumn }}\" > '${OLDEST_RECORD}'::timestamp  \
+                      AND \"{{ .timestampColumn }}\" < now()::timestamp - interval '{{ $.Values.cronjob.lagMinutes }}' minute)  \
+                TO '/tmp/pg-to-pg-sync.copy' WITH CSV;" | sed 's/COPY //g')`;
 
-                export IMPORTED_RECORDS=`(PGHOST=$TARGET_PGHOST PGDATABASE=$TARGET_PGDATABASE PGUSER=$TARGET_PGUSER PGPASSWORD=$TARGET_PGPASSWORD psql -c "\copy ${TARGET_SCHEMA}.\"${TARGET_TABLE}\" FROM '/tmp/pg-to-pg-sync.copy' WITH CSV;" | sed 's/COPY //g')`;
+                echo "${EXPORTED_RECORDS} records exported from {{ .inputSchema }}.\"{{ .inputTable }}\"";
 
-                echo "${IMPORTED_RECORDS} records imported to ${TARGET_SCHEMA}.\"${TARGET_TABLE}\"";
+                # Output DB Connection
+                export PGHOST={{ $outputDB.host }} PGDATABASE={{ $outputDB.name }} PGUSER={{ $outputDB.user }} PGPASSWORD=$PASS_{{ .outputDB }};
 
-                export MESSAGE="${ENVIRONMENT} | ${EXPORTED_RECORDS} records exported from ${SOURCE_SCHEMA}.\"${SOURCE_TABLE}\" | ${IMPORTED_RECORDS} records imported to ${TARGET_SCHEMA}.\"${TARGET_TABLE}\"";
+                # Copy saved CSV -> Output Table
+                export IMPORTED_RECORDS=`(psql -c "\copy {{ .outputSchema }}.\"{{ .outputTable }}\" FROM '/tmp/pg-to-pg-sync.copy' WITH CSV;" | sed 's/COPY //g')`;
+
+                echo "{{ $.Release.Name }}";
+                echo "${EXPORTED_RECORDS} records exported from {{ $inputDB.name }}:{{ .inputSchema }}.\"{{ .inputTable }}\"";
+                echo "${IMPORTED_RECORDS} records imported to {{ $outputDB.name }}:{{ .outputSchema }}.\"{{ .outputTable }}\"";
+
+                {{- end }}
+                EOF
 
                 # Make PROM metrics here
-                */}}
+                # Or IN the loop
+
             env:
               # Need this for all the screts in DBS...
               # We export passwords to env variables by the DB nickname given in values
               {{ range $db, $dbValues := $.Values.dbs }}
-              - name: {{ $dbValues.name }}
+              - name: PASS_{{ $db }}
                 valueFrom:
                   secretKeyRef:
                     name: {{ $dbValues.secret }}
                     key: {{ $dbValues.passwordKey }}
               {{ end }}
-              
-
-
           restartPolicy: {{ $.Values.cronjob.restartPolicy }}
-
           {{- if $.Values.imagePullSecrets }}
           imagePullSecrets:
             {{- toYaml $.Values.imagePullSecrets | nindent 12 }}
-            - name: {{ $.Values.imagePullSecrets }}
           {{- end }}

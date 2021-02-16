@@ -1,21 +1,20 @@
 imagePullSecrets: []
-# TODO = implement LIST here?
+# imagePullSecrets:
+#   - name: "ecr-registry-secret"
 nameOverride: ""
 fullnameOverride: ""
 
 # TODO = Generic base image
 image:
-  repository: "193568805012.dkr.ecr.ap-southeast-2.amazonaws.com/atmosphere/utility"
+  repository: "docker.io/bitnami/postgresql"
   pullPolicy: IfNotPresent
-  tag: "v1.2.6"
-
-# imagePullSecrets:
-#   - name: "ecr-registry-secret"
+  tag: "11.7.0-debian-10-r43"
 
 cronjob:
   schedule: "@hourly"
-  lagMinutes: "60"
-  truncateTargetTable: "FALSE"
+  # DB Lag eg. don't import records with timestamp > lagMinutes
+  lagMinutes: "0"
+  truncateTargetTable: false
   restartPolicy: "Never"
 
 # Provide the DBs to reference later in the table mappings
@@ -24,35 +23,41 @@ dbs:
   # These db nicknames are used when we export env variables
   # To access the passwords for the DB since
   # secretKeyRef is the only way to get data from the secret
-  sourceDB1:
-    secret: "postgres-secret-0"
-    host: "localhost:9999"
-    user: "jope"
-    passwordKey: "postgres-password"
-    name: "gooddb"
+  atmoDB:
+    secret: "atmosphere-postgresql-secrets"
+    host: "postgresql"
+    user: "atmosphere"
+    passwordKey: "PGPASSWORD"
+    name: "atmospherex"
 
-  targetDB1:
-    secret: "outside-postgres-secret-0"
-    host: "my-other-server.server"
-    user: "tradmin"
-    passwordKey: "pgpass"
-    name: "otherdb"
-
-# Now make the table mappings
+  greenplum:
+    secret: "postgresql-1613204300"
+    host: "postgresql-1613204300"
+    user: "postgres"
+    passwordKey: "postgresql-password"
+    name: "postgres"
 
 tableMappings:
-  - inputTable: predictions 
+  - inputTable: prediction
     inputSchema: public
-    inputDB: sourceDB1
-    timestampColumn: time_column
-    outputTable: output_name_bar
-    outputDB: targetDB1
-    outputSchema: public
+    inputDB: atmoDB
+    timestampColumn: created_at
+    outputTable: atmosphere_predictions
+    outputDB: greenplum
+    outputSchema: mod_rtde
    
-  - inputTable: outcomes
+  - inputTable: outcome
     inputSchema: public
-    inputDB: sourceDB1
-    timestampColumn: time_column
-    outputTable: output_name_bar
-    outputDB: targetDB1
-    outputSchema: public
+    inputDB: atmoDB
+    timestampColumn: created_at
+    outputTable: atmosphere_outcomes
+    outputDB: greenplum
+    outputSchema: mod_rtde
+   
+  - inputTable: entity
+    inputSchema: public
+    inputDB: atmoDB
+    timestampColumn: created_at
+    outputTable: atmosphere_entities
+    outputDB: greenplum
+    outputSchema: mod_rtde
