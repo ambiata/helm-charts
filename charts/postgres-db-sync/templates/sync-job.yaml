@@ -51,6 +51,7 @@ spec:
             env:
               # Need this for all the screts in DBS...
               # We export passwords to env variables by the DB nickname given in values
+              # secretKeyRef is the only way to get data from the secret
               {{ range $db, $dbValues := $.Values.dbs }}
               - name: PGDBSYNC_PASSWORD_{{ $db }}
                 valueFrom:
