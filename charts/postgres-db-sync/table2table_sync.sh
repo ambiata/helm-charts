@@ -17,7 +17,7 @@ fi
 # Find the oldest record in the output table so that we can export all the
 # newer records than this
 export OLDEST_RECORD=`(psql --tuples-only -c " \
-  SELECT COALESCE(MAX(\"${TIMESTAMP_COLUMN}\"),'2020-01-01 00:00:00'::timestamp) \
+  SELECT COALESCE(MAX(\"${TIMESTAMP_COLUMN}\"),'1900-01-01 00:00:00'::timestamp) \
   FROM ${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}\"; \
 ")`;
 
