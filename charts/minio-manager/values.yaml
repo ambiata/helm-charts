@@ -4,7 +4,7 @@
 image:
   repository: minio/mc
   pullPolicy: IfNotPresent
-  tag: RELEASE.2020-04-04T05-28-55Z
+  tag: RELEASE.2020-11-25T23-04-07Z
 
 imagePullSecrets: []
 nameOverride: ""
@@ -15,7 +15,8 @@ buckets: {}
 #  bucket1: # name of the bucket to create
 #     policy: ""  # Set a policy for anonymous users on this bucket. Allowed policies are: [none, download, upload, public] (https://docs.min.io/docs/minio-client-complete-guide.html#policy)
 #     purge: false  # purge the bucket if already exists if set to true
-#  bucket2
+#     versioning: ""  # versioning of the bucket. Only available in erasure coded and distributed erasure coded setups (https://docs.min.io/docs/minio-bucket-versioning-guide.html)
+#  bucket2:
 #     policy: ""
 #     purge: ""
 
