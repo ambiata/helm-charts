@@ -19,8 +19,6 @@ spec:
               - |
                 /bin/bash <<'EOF'
 
-                date;
-
                 {{- /* Iterate through each table mapping (Input table -> Output table) */}}
                 {{- range $mapping := $.Values.tableMappings }}
 
@@ -28,64 +26,46 @@ spec:
                 {{- $inputDB := get $.Values.dbs .inputDB }}
                 {{- $outputDB := get $.Values.dbs .outputDB }}
 
-                echo "Synchronize {{ $inputDB.name }}:{{ .inputSchema  }}.\"{{ .inputTable }}\"";
-                echo "to {{ $outputDB.name }}:{{ .outputSchema }}.\"{{ .outputTable }}\"";
+                export $INPUT_DB_HOST='{{ $inputDB.host }}';
+                export $INPUT_DB_NAME='{{ $inputDB.name }}';
+                export $INPUT_DB_USER='{{ $inputDB.user }}';
+                export $INPUT_DB_PASS=${PGDBSYNC_PASSWORD_{{ .inputDB }}};
+                export $INPUT_SCHEMA='{{ .inputSchema }}';
+                export $INPUT_TABLE='{{ .inputTable }}';
+                export $OUTPUT_DB_HOST='{{ $outputDB.host }}';
+                export $OUTPUT_DB_NAME='{{ $outputDB.name }}';
+                export $OUTPUT_DB_USER='{{ $outputDB.user }}';
+                export $OUTPUT_DB_PASS=${PGDBSYNC_PASSWORD_{{ .outputDB }}};
+                export $OUTPUT_SCHEMA='{{ .outputSchema }}';
+                export $OUTPUT_TABLE='{{ .outputTable }}';
+                export $TIMESTAMP_COLUMN='{{ .timestampColumn }}';
+                export $TRUNCATE_TARGET_TABLE='{{ $.Values.cronjob.truncate_target_table }}';
+                export $LAG_MINUTES='{{ $.Values.cronjob.lagMinutes }}';
 
-                # Output DB Connection
-                export PGHOST={{ $outputDB.host }} PGDATABASE={{ $outputDB.name }} PGUSER={{ $outputDB.user }} PGPASSWORD=${PASS_{{ .outputDB }}};
+                /usr/local/bin/table2table_sync.sh
 
-                {{ if $.Values.cronjob.truncateTargetTable }}
-                echo "Truncating {{ $outputDB.name }}:{{ .outputSchema }}.\"{{ .outputTable }}";
-                psql -c "TRUNCATE TABLE {{ .outputSchema }}.\"{{ .outputTable }}\";";
-                {{ end }}
-
-                # Find the oldest record in the output table so that we can export all the
-                # newer records than this
-                export OLDEST_RECORD=`(psql --tuples-only -c " \
-                  SELECT COALESCE(MAX(\"{{ .timestampColumn }}\"),'2020-01-01 00:00:00'::timestamp) \
-                  FROM {{ .outputSchema }}.\"{{ .outputTable }}\"; \
-                ")`;
-
-                echo "Oldest record timestamp at target ${OLDEST_RECORD}";
-
-                # Input DB Connection
-                export PGHOST={{ $inputDB.host }} PGDATABASE={{ $inputDB.name }} PGUSER={{ $inputDB.user }} PGPASSWORD=$PASS_{{ .inputDB }};
-
-                # Copy all newer records from the input table -> CSV
-                export EXPORTED_RECORDS=`(psql -c "\copy  \
-                (SELECT * FROM {{ .inputSchema }}.\"{{ .inputTable }}\"  \
-                WHERE \"{{ .timestampColumn }}\" > '${OLDEST_RECORD}'::timestamp  \
-                      AND \"{{ .timestampColumn }}\" < now()::timestamp - interval '{{ $.Values.cronjob.lagMinutes }}' minute)  \
-                TO '/tmp/pg-to-pg-sync.copy' WITH CSV;" | sed 's/COPY //g')`;
-
-                echo "${EXPORTED_RECORDS} records exported from {{ .inputSchema }}.\"{{ .inputTable }}\"";
-
-                # Output DB Connection
-                export PGHOST={{ $outputDB.host }} PGDATABASE={{ $outputDB.name }} PGUSER={{ $outputDB.user }} PGPASSWORD=$PASS_{{ .outputDB }};
-
-                # Copy saved CSV -> Output Table
-                export IMPORTED_RECORDS=`(psql -c "\copy {{ .outputSchema }}.\"{{ .outputTable }}\" FROM '/tmp/pg-to-pg-sync.copy' WITH CSV;" | sed 's/COPY //g')`;
-
-                echo "{{ $.Release.Name }}";
-                echo "${EXPORTED_RECORDS} records exported from {{ $inputDB.name }}:{{ .inputSchema }}.\"{{ .inputTable }}\"";
-                echo "${IMPORTED_RECORDS} records imported to {{ $outputDB.name }}:{{ .outputSchema }}.\"{{ .outputTable }}\"";
-
-                {{- end }}
                 EOF
-
-                # Make PROM metrics here
-                # Or IN the loop
+                
+                {{ end }}
 
             env:
               # Need this for all the screts in DBS...
               # We export passwords to env variables by the DB nickname given in values
               {{ range $db, $dbValues := $.Values.dbs }}
-              - name: PASS_{{ $db }}
+              - name: PGDBSYNC_PASSWORD_{{ $db }}
                 valueFrom:
                   secretKeyRef:
                     name: {{ $dbValues.secret }}
                     key: {{ $dbValues.passwordKey }}
               {{ end }}
+            volumeMounts:
+			  - name: config-volume
+				mountPath: /usr/local/bin
+		  volumes:
+			- name: config-volume
+			  configMap:
+				name: {{ include "pgdbsync.fullname" . }}-configmap
+                defaultMode: 0777
           restartPolicy: {{ $.Values.cronjob.restartPolicy }}
           {{- if $.Values.imagePullSecrets }}
           imagePullSecrets:
