@@ -7,11 +7,8 @@ echo "to ${OUTPUT_DB_NAME}:${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}\"";
 # Output DB Connection
 export PGHOST=${OUTPUT_DB_HOST} PGDATABASE=${OUTPUT_DB_NAME} PGUSER=${OUTPUT_DB_USER} PGPASSWORD=${OUTPUT_DB_PASS};
 
-echo '$TRUNCATE_TARGET_TABLE'
-echo "$TRUNCATE_TARGET_TABLE"
-
-# replace again
-if [[ "$TRUNCATE_TARGET_TABLE" == "TRUE" ]]
+# Truncate table if required
+if [[ "$TRUNCATE_TARGET_TABLE" == "true" ]]
 then
   echo "Truncating ${OUTPUT_DB_NAME}:${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}";
   psql  -c "TRUNCATE TABLE ${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}\";";

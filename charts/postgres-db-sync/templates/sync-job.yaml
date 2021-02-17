@@ -26,27 +26,27 @@ spec:
                 {{- $inputDB := get $.Values.dbs .inputDB }}
                 {{- $outputDB := get $.Values.dbs .outputDB }}
 
-                export $INPUT_DB_HOST='{{ $inputDB.host }}';
-                export $INPUT_DB_NAME='{{ $inputDB.name }}';
-                export $INPUT_DB_USER='{{ $inputDB.user }}';
-                export $INPUT_DB_PASS=${PGDBSYNC_PASSWORD_{{ .inputDB }}};
-                export $INPUT_SCHEMA='{{ .inputSchema }}';
-                export $INPUT_TABLE='{{ .inputTable }}';
-                export $OUTPUT_DB_HOST='{{ $outputDB.host }}';
-                export $OUTPUT_DB_NAME='{{ $outputDB.name }}';
-                export $OUTPUT_DB_USER='{{ $outputDB.user }}';
-                export $OUTPUT_DB_PASS=${PGDBSYNC_PASSWORD_{{ .outputDB }}};
-                export $OUTPUT_SCHEMA='{{ .outputSchema }}';
-                export $OUTPUT_TABLE='{{ .outputTable }}';
-                export $TIMESTAMP_COLUMN='{{ .timestampColumn }}';
-                export $TRUNCATE_TARGET_TABLE='{{ $.Values.cronjob.truncate_target_table }}';
-                export $LAG_MINUTES='{{ $.Values.cronjob.lagMinutes }}';
+                export INPUT_DB_HOST='{{ $inputDB.host }}';
+                export INPUT_DB_NAME='{{ $inputDB.name }}';
+                export INPUT_DB_USER='{{ $inputDB.user }}';
+                export INPUT_DB_PASS=${PGDBSYNC_PASSWORD_{{ .inputDB }}};
+                export INPUT_SCHEMA='{{ .inputSchema }}';
+                export INPUT_TABLE='{{ .inputTable }}';
+                export OUTPUT_DB_HOST='{{ $outputDB.host }}';
+                export OUTPUT_DB_NAME='{{ $outputDB.name }}';
+                export OUTPUT_DB_USER='{{ $outputDB.user }}';
+                export OUTPUT_DB_PASS=${PGDBSYNC_PASSWORD_{{ .outputDB }}};
+                export OUTPUT_SCHEMA='{{ .outputSchema }}';
+                export OUTPUT_TABLE='{{ .outputTable }}';
+                export TIMESTAMP_COLUMN='{{ .timestampColumn }}';
+                export TRUNCATE_TARGET_TABLE='{{ $.Values.cronjob.truncateTargetTable }}';
+                export LAG_MINUTES='{{ $.Values.cronjob.lagMinutes }}';
 
                 /usr/local/bin/table2table_sync.sh
 
-                EOF
-                
                 {{ end }}
+
+                EOF
 
             env:
               # Need this for all the screts in DBS...
@@ -59,12 +59,12 @@ spec:
                     key: {{ $dbValues.passwordKey }}
               {{ end }}
             volumeMounts:
-			  - name: config-volume
-				mountPath: /usr/local/bin
-		  volumes:
-			- name: config-volume
-			  configMap:
-				name: {{ include "pgdbsync.fullname" . }}-configmap
+              - name: config-volume
+                mountPath: /usr/local/bin
+          volumes:
+            - name: config-volume
+              configMap:
+                name: {{ include "pgdbsync.fullname" . }}-configmap
                 defaultMode: 0777
           restartPolicy: {{ $.Values.cronjob.restartPolicy }}
           {{- if $.Values.imagePullSecrets }}

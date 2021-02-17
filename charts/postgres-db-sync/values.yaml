@@ -14,7 +14,7 @@ cronjob:
   schedule: "@hourly"
   # DB Lag eg. don't import records with timestamp > lagMinutes
   lagMinutes: "0"
-  truncateTargetTable: false
+  truncateTargetTable: "false"
   restartPolicy: "Never"
 
 # Provide the DBs to reference later in the table mappings
