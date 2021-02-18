@@ -26,14 +26,14 @@ cronjob:
 #     user: "atmosphere"
 #     passwordKey: "PGPASSWORD"
 #     name: "atmospherex"
-# 
+#
 #   greenplum:
 #     secret: "postgresql-1613204300"
 #     host: "postgresql-1613204300"
 #     user: "postgres"
 #     passwordKey: "postgresql-password"
 #     name: "postgres"
-# 
+#
 # tableMappings:
 #   - inputTable: prediction
 #     inputSchema: public
