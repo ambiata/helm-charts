@@ -19,42 +19,42 @@ cronjob:
 
 # Provide the DBs to reference later in the table mappings
 
-#dbs:
-#  atmoDB:
-#    secret: "atmosphere-postgresql-secrets"
-#    host: "postgresql"
-#    user: "atmosphere"
-#    passwordKey: "PGPASSWORD"
-#    name: "atmospherex"
+# dbs:
+#   atmoDB:
+#     secret: "atmosphere-postgresql-secrets"
+#     host: "postgresql"
+#     user: "atmosphere"
+#     passwordKey: "PGPASSWORD"
+#     name: "atmospherex"
+# 
+#   greenplum:
+#     secret: "postgresql-1613204300"
+#     host: "postgresql-1613204300"
+#     user: "postgres"
+#     passwordKey: "postgresql-password"
+#     name: "postgres"
+# 
+# tableMappings:
+#   - inputTable: prediction
+#     inputSchema: public
+#     inputDB: atmoDB
+#     timestampColumn: created_at
+#     outputTable: atmosphere_predictions
+#     outputDB: greenplum
+#     outputSchema: mod_rtde
 #
-#  greenplum:
-#    secret: "postgresql-1613204300"
-#    host: "postgresql-1613204300"
-#    user: "postgres"
-#    passwordKey: "postgresql-password"
-#    name: "postgres"
+#   - inputTable: outcome
+#     inputSchema: public
+#     inputDB: atmoDB
+#     timestampColumn: created_at
+#     outputTable: atmosphere_outcomes
+#     outputDB: greenplum
+#     outputSchema: mod_rtde
 #
-#tableMappings:
-#  - inputTable: prediction
-#    inputSchema: public
-#    inputDB: atmoDB
-#    timestampColumn: created_at
-#    outputTable: atmosphere_predictions
-#    outputDB: greenplum
-#    outputSchema: mod_rtde
-#   
-#  - inputTable: outcome
-#    inputSchema: public
-#    inputDB: atmoDB
-#    timestampColumn: created_at
-#    outputTable: atmosphere_outcomes
-#    outputDB: greenplum
-#    outputSchema: mod_rtde
-#   
-#  - inputTable: entity
-#    inputSchema: public
-#    inputDB: atmoDB
-#    timestampColumn: created_at
-#    outputTable: atmosphere_entities
-#    outputDB: greenplum
-#    outputSchema: mod_rtde
+#   - inputTable: entity
+#     inputSchema: public
+#     inputDB: atmoDB
+#     timestampColumn: created_at
+#     outputTable: atmosphere_entities
+#     outputDB: greenplum
+#     outputSchema: mod_rtde
