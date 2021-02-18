@@ -1,0 +1,11 @@
+apiVersion: v2
+name: postgres-db-sync
+description: Sync postgres DB tables together based on a timestamp column
+type: application
+icon: https://en.wikipedia.org/wiki/PostgreSQL#/media/File:Postgresql_elephant.svg
+version: "0.1.0"
+appVersion: "1.0.0"
+maintainers:
+  - name: Ambiata
+    email: info@ambiata.com
+    url: www.ambiata.com

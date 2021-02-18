@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "pgdbsync.fullname" . }}-configmap
+data:
+  table2table_sync.sh: |-
+{{ .Files.Get "table2table_sync.sh" | indent 4 }}

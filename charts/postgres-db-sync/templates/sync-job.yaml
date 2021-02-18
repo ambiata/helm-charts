@@ -1,0 +1,74 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ include "pgdbsync.fullname" . }}
+spec:
+  schedule: "{{ $.Values.cronjob.schedule }}"
+  concurrencyPolicy: "Forbid"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: postgres-to-postgres-sync-cronjob
+            image: {{ printf "%s:%s" $.Values.image.repository $.Values.image.tag }}
+            imagePullPolicy: {{ $.Values.image.pullPolicy }}
+            command: 
+              - "/bin/bash"
+              - "-c"
+              - |
+                /bin/bash <<'EOF'
+
+                {{- /* Iterate through each table mapping (Input table -> Output table) */}}
+                {{- range $mapping := $.Values.tableMappings }}
+
+                {{- /* Get the DB info from the dbs dictionary */}}
+                {{- $inputDB := get $.Values.dbs .inputDB }}
+                {{- $outputDB := get $.Values.dbs .outputDB }}
+
+                export INPUT_DB_HOST='{{ $inputDB.host }}';
+                export INPUT_DB_NAME='{{ $inputDB.name }}';
+                export INPUT_DB_USER='{{ $inputDB.user }}';
+                export INPUT_DB_PASS=${PGDBSYNC_PASSWORD_{{ .inputDB }}};
+                export INPUT_SCHEMA='{{ .inputSchema }}';
+                export INPUT_TABLE='{{ .inputTable }}';
+                export OUTPUT_DB_HOST='{{ $outputDB.host }}';
+                export OUTPUT_DB_NAME='{{ $outputDB.name }}';
+                export OUTPUT_DB_USER='{{ $outputDB.user }}';
+                export OUTPUT_DB_PASS=${PGDBSYNC_PASSWORD_{{ .outputDB }}};
+                export OUTPUT_SCHEMA='{{ .outputSchema }}';
+                export OUTPUT_TABLE='{{ .outputTable }}';
+                export TIMESTAMP_COLUMN='{{ .timestampColumn }}';
+                export TRUNCATE_TARGET_TABLE='{{ $.Values.cronjob.truncateTargetTable }}';
+                export LAG_MINUTES='{{ $.Values.cronjob.lagMinutes }}';
+
+                /usr/local/bin/table2table_sync.sh
+
+                {{ end }}
+
+                EOF
+
+            env:
+              # Need this for all the screts in DBS...
+              # We export passwords to env variables by the DB nickname given in values
+              # secretKeyRef is the only way to get data from the secret
+              {{ range $db, $dbValues := $.Values.dbs }}
+              - name: PGDBSYNC_PASSWORD_{{ $db }}
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ $dbValues.secret }}
+                    key: {{ $dbValues.passwordKey }}
+              {{ end }}
+            volumeMounts:
+              - name: config-volume
+                mountPath: /usr/local/bin
+          volumes:
+            - name: config-volume
+              configMap:
+                name: {{ include "pgdbsync.fullname" . }}-configmap
+                defaultMode: 0777
+          restartPolicy: {{ $.Values.cronjob.restartPolicy }}
+          {{- if $.Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml $.Values.imagePullSecrets | nindent 12 }}
+          {{- end }}
