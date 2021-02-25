@@ -1,9 +1,12 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  annotations:
-    "helm.sh/hook": "pre-install, pre-upgrade, pre-rollback"
-    "helm.sh/hook-delete-policy": before-hook-creation
+  annotations: {}
+#   # can also try:
+#     argocd.argoproj.io/hook: PostSync
+#     argocd.argoproj.io/hook-delete-policy: HookSucceeded
+#     "helm.sh/hook": "pre-install, pre-upgrade, pre-rollback"
+#     "helm.sh/hook-delete-policy": before-hook-creation
   name: minio-manager-global
 spec:
   backoffLimit: 4
