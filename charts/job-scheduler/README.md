@@ -12,8 +12,10 @@ The following values attributes are required:
 
 ## Attributes
 ```
+namespace: <namespace> (required)
+
+jobs:
   my_cronjob_1:
-    namespace: <namespace> (required)
     schedule: <cron format scheduling spec or shortcuts> (required) e.g. "@hourly", "17 * * * *" etc
     command: <list of command segments> (required) e.g. [ "/bin/sh", "-c" ]
     args: <list of arguments to the command>. This can be used to define whole scripts via usage of `;` and multiline strings
