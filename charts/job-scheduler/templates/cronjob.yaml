@@ -1,10 +1,11 @@
 {{ range $job, $attrs := .Values.jobs }}
+{{ $jobname := $job | replace "_" "-" | replace "." "-" | quote }}
 
 ---
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: {{ $job | replace "_" "-" | quote }}
+  name: {{ $jobname }}
   namespace: {{ required "namespace is required!" $attrs.namespace }}
 spec:
   schedule: {{ (required "job.schedule is required!" $attrs.schedule) | quote }}
@@ -13,7 +14,7 @@ spec:
       template:
         spec:
           containers:
-          - name: {{ $job | replace "_" "-" | quote }}
+          - name: {{ $jobname }}
             image: {{ printf "%s:%s" (required "job.image.repo is required!" $attrs.image.repo) ($attrs.image.tag | default "latest") }}
 
             command:
