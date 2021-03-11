@@ -5,7 +5,7 @@ apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
   name: {{ $job | replace "_" "-" | quote }}
-  namespace: {{ required "namespace is required!" $.Values.namespace }}
+  namespace: {{ required "namespace is required!" $attrs.namespace }}
 spec:
   schedule: {{ (required "job.schedule is required!" $attrs.schedule) | quote }}
   jobTemplate:

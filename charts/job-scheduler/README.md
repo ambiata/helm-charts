@@ -5,17 +5,16 @@ This is a thin wrapper chart for generating Kubernetes `cronjob`s.
 Values file contains a top-level map named `jobs` that must be populated with nested maps of job definitions.
 
 The following values attributes are required:
-* `namespace`
+* `job.namespace`
 * `job.command`
 * `job.image.repo`
 * `job.schedule`
 
 ## Attributes
 ```
-namespace: <namespace> (required)
-
 jobs:
   my_cronjob_1:
+    namespace: <namespace> (required)
     schedule: <cron format scheduling spec or shortcuts> (required) e.g. "@hourly", "17 * * * *" etc
     command: <list of command segments> (required) e.g. [ "/bin/sh", "-c" ]
     args: <list of arguments to the command>. This can be used to define whole scripts via usage of `;` and multiline strings
@@ -32,4 +31,6 @@ jobs:
     volumeMounts:
     - name: nfs-volume
       mountPath: /mnt
+  ...
+    ...
 ```
