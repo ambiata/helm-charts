@@ -5,7 +5,7 @@ apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
   name: {{ $job | replace "_" "-" | quote }}
-  namespace: {{ (required "job.namespace is required!" $attrs.namespace) }}
+  namespace: {{ required "namespace is required!" $.Values.namespace }}
 spec:
   schedule: {{ (required "job.schedule is required!" $attrs.schedule) | quote }}
   jobTemplate:
@@ -26,10 +26,13 @@ spec:
             {{- toYaml . | nindent 12 }}
             {{ end -}}
 
-            {{- with $attrs.envFrom }}
+            {{- if $attrs.secretRefs }}
             envFrom:
-            {{- toYaml . | nindent 12 }}
-            {{ end -}}
+            {{- range $secret := $attrs.secretRefs }}
+              - secretRef:
+                name: {{ $secret | quote }}
+            {{- end }}
+            {{ end }}
 
             {{- with $attrs.volumeMounts }}
             volumeMounts:
