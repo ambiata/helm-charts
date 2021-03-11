@@ -1,6 +1,10 @@
 apiVersion: v2
 name: job-scheduler
 description: A Helm chart for managing cron jobs.
+maintainers:
+  - name: Ambiata
+    email: info@ambiata.com
+    url: www.ambiata.com
 
 # A chart can be either an 'application' or a 'library' chart.
 #

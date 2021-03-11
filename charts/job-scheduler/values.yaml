@@ -1,5 +1,4 @@
 # The target namespace for the job(s)
-
 # Format:
 # jobs:
 #   job_name_1:
@@ -7,7 +6,6 @@
 #     attribute_2: ...
 #     ...
 #   ...
-
 jobs:
   backup_postgresql:
     namespace: postgresql
@@ -42,4 +40,3 @@ jobs:
     volumeMounts:
     - name: nfs-volume
       mountPath: /mnt
-
