@@ -1,0 +1,49 @@
+{{ range $job, $attrs := .Values.jobs }}
+
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ $job | replace "_" "-" | quote }}
+  namespace: {{ (required "job.namespace is required!" $attrs.namespace) }}
+spec:
+  schedule: {{ (required "job.schedule is required!" $attrs.schedule) | quote }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: {{ $job | replace "_" "-" | quote }}
+            image: {{ printf "%s:%s" (required "job.image.repo is required!" $attrs.image.repo) ($attrs.image.tag | default "latest") }}
+
+            command:
+            {{- with $attrs.command }}
+            {{- toYaml (required "job.command is required!" .) | nindent 12 }}
+            {{ end }}
+
+            {{- with $attrs.args }}
+            args:
+            {{- toYaml . | nindent 12 }}
+            {{ end -}}
+
+            {{- with $attrs.envFrom }}
+            envFrom:
+            {{- toYaml . | nindent 12 }}
+            {{ end -}}
+
+            {{- with $attrs.volumeMounts }}
+            volumeMounts:
+            {{- toYaml . | nindent 12 }}
+            {{ end -}}
+
+          {{- with $attrs.volumes }}
+          volumes:
+          {{- toYaml . | nindent 10 }}
+          {{ end -}}
+
+          {{- with $attrs.image.pullSecrets }}
+          imagePullSecrets:
+          {{- toYaml . | nindent 10 }}
+          {{ end -}}
+
+{{ end }}
