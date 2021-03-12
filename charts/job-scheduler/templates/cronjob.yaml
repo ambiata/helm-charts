@@ -30,7 +30,7 @@ spec:
             {{- if $attrs.secretRefs }}
             envFrom:
             {{- range $secret := $attrs.secretRefs }}
-              - secretRef:
+            - secretRef:
                 name: {{ $secret | quote }}
             {{- end }}
             {{ end }}
