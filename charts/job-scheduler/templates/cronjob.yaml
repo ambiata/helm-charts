@@ -13,6 +13,7 @@ spec:
     spec:
       template:
         spec:
+          restartPolicy: "Never"
           containers:
           - name: {{ $jobname }}
             image: {{ printf "%s:%s" (required "job.image.repo is required!" $attrs.image.repo) ($attrs.image.tag | default "latest") }}
