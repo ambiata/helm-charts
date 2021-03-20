@@ -62,11 +62,23 @@ spec:
             volumeMounts:
               - name: config-volume
                 mountPath: /usr/local/bin
+              - name: export-query
+                mountPath: /usr/local/bin
+              - name: create-target-table
+                mountPath: /usr/local/bin
           volumes:
             - name: config-volume
               configMap:
                 name: {{ include "pgdbsync.fullname" . }}-configmap
                 defaultMode: 0777
+            - name: export-query
+              configMap:
+                name: {{ include "pgdbsync.customExportStatementConfigMap" . }}
+            {{- if .Values.createTargetTableConfigMap }}
+            - name: create-target-table
+              configMap:
+                name: {{ .Values.createTargetTableConfigMap }}
+            {{- end }}
           restartPolicy: {{ $.Values.cronjob.restartPolicy }}
           {{- if $.Values.imagePullSecrets }}
           imagePullSecrets:

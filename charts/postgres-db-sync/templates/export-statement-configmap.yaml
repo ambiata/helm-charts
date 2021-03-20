@@ -1,0 +1,15 @@
+{{- if not .Values.customExportStatementConfigMap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "pgdbsync.fullname" . }}-export-statement
+data:
+  export.sql: |-
+    \copy (
+    SELECT
+    *
+    FROM ${INPUT_SCHEMA}.\"${INPUT_TABLE}\"
+    WHERE \"${TIMESTAMP_COLUMN}\" > '${OLDEST_RECORD}'::timestamp
+    AND \"${TIMESTAMP_COLUMN}\" < now()::timestamp - interval '${LAG_MINUTES}' minute
+    ) TO '/tmp/pg-to-pg-sync.copy' WITH CSV;
+{{- end }}

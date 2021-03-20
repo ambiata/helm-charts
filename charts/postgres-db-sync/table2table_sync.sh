@@ -7,11 +7,18 @@ echo "to ${OUTPUT_DB_NAME}:${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}\"";
 # Output DB Connection
 export PGHOST=${OUTPUT_DB_HOST} PGDATABASE=${OUTPUT_DB_NAME} PGUSER=${OUTPUT_DB_USER} PGPASSWORD=${OUTPUT_DB_PASS};
 
+# Create target table if required
+if [[ -f "/usr/local/bin/create_target.sql" ]]
+then
+  echo "Creating ${OUTPUT_DB_NAME}:${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}";
+  cat /usr/local/bin/create_target.sql | tr '\n' ' ' | psql -f -;
+fi
+
 # Truncate table if required
 if [[ "$TRUNCATE_TARGET_TABLE" == "true" ]]
 then
   echo "Truncating ${OUTPUT_DB_NAME}:${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}";
-  psql  -c "TRUNCATE TABLE ${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}\";";
+  psql -c "TRUNCATE TABLE ${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}\";";
 fi
 
 # Find the oldest record in the output table so that we can export all the
@@ -27,11 +34,7 @@ echo "Oldest record timestamp at target ${OLDEST_RECORD}";
 export PGHOST=${INPUT_DB_HOST} PGDATABASE=${INPUT_DB_NAME} PGUSER=${INPUT_DB_USER} PGPASSWORD=${INPUT_DB_PASS};
 
 # Copy all newer records from the input table -> CSV
-export EXPORTED_RECORDS=`(psql -c "\copy  \
-(SELECT * FROM ${INPUT_SCHEMA}.\"${INPUT_TABLE}\"  \
-WHERE \"${TIMESTAMP_COLUMN}\" > '${OLDEST_RECORD}'::timestamp  \
-	  AND \"${TIMESTAMP_COLUMN}\" < now()::timestamp - interval '${LAG_MINUTES}' minute)  \
-TO '/tmp/pg-to-pg-sync.copy' WITH CSV;" | sed 's/COPY //g')`;
+export EXPORTED_RECORDS=`(cat /usr/local/bin/export.sql | tr '\n' ' ' | psql -f - | sed 's/COPY //g')`;
 
 echo "${EXPORTED_RECORDS} records exported from ${INPUT_SCHEMA}.\"${INPUT_TABLE}\"";
 
