@@ -5,11 +5,11 @@ metadata:
   name: {{ include "pgdbsync.fullname" . }}-export-statement
 data:
   export.sql: |-
-    \copy (
+    CREATE TEMP VIEW _ATMO_EXP AS
     SELECT
     *
-    FROM ${INPUT_SCHEMA}.\"${INPUT_TABLE}\"
-    WHERE \"${TIMESTAMP_COLUMN}\" > '${OLDEST_RECORD}'::timestamp
-    AND \"${TIMESTAMP_COLUMN}\" < now()::timestamp - interval '${LAG_MINUTES}' minute
-    ) TO '/tmp/pg-to-pg-sync.copy' WITH CSV;
+    FROM :schema.:"table"
+    WHERE :"column" > :'oldest_record'::timestamp
+    AND :"column" < now()::timestamp - interval :'lag_minutes' minute;
+    \copy (select * from _ATMO_EXP) TO '/tmp/pg-to-pg-sync.copy' WITH CSV;
 {{- end }}
