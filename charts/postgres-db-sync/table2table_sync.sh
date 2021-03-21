@@ -8,10 +8,10 @@ echo "to ${OUTPUT_DB_NAME}:${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}\"";
 export PGHOST=${OUTPUT_DB_HOST} PGDATABASE=${OUTPUT_DB_NAME} PGUSER=${OUTPUT_DB_USER} PGPASSWORD=${OUTPUT_DB_PASS};
 
 # Create target table if required
-if [[ -f "/usr/local/bin/create_target.sql" ]]
+if [[ -f "/usr/src/pg-db-sync/create_target.sql" ]]
 then
   echo "Creating ${OUTPUT_DB_NAME}:${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}";
-  cat /usr/local/bin/create_target.sql | tr '\n' ' ' | psql -f -;
+  psql --single-transaction -f /usr/src/pg-db-sync/create_target.sql;
 fi
 
 # Truncate table if required
@@ -37,7 +37,7 @@ export PGHOST=${INPUT_DB_HOST} PGDATABASE=${INPUT_DB_NAME} PGUSER=${INPUT_DB_USE
 export EXPORTED_RECORDS=`(psql --single-transaction \
   --set schema=${INPUT_SCHEMA} --set table=${INPUT_TABLE}  \
   --set column=${TIMESTAMP_COLUMN} --set oldest_record=${OLDEST_RECORD} \
-  --set lag_minutes=${LAG_MINUTES} -f /usr/local/bin/export.sql | \
+  --set lag_minutes=${LAG_MINUTES} -f /usr/src/pg-db-sync/export.sql | \
   tail -n 1 | sed 's/COPY //g')`;
 
 echo "${EXPORTED_RECORDS} records exported from ${INPUT_SCHEMA}.\"${INPUT_TABLE}\"";
