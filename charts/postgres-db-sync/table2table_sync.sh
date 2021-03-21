@@ -24,10 +24,10 @@ fi
 
 # Find the oldest record in the output table so that we can export all the
 # newer records than this
-export OLDEST_RECORD=`(psql --tuples-only -c " \
+export OLDEST_RECORD=`(psql --tuples-only -c "\
   SELECT COALESCE(MAX(\"${TIMESTAMP_COLUMN}\"),'1900-01-01 00:00:00'::timestamp) \
   FROM ${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}\"; \
-")`;
+" | xargs)`;
 
 echo "Oldest record timestamp at target ${OLDEST_RECORD}";
 
@@ -37,7 +37,7 @@ export PGHOST=${INPUT_DB_HOST} PGDATABASE=${INPUT_DB_NAME} PGUSER=${INPUT_DB_USE
 # Copy all newer records from the input table -> CSV
 export EXPORTED_RECORDS=`(psql --single-transaction \
   --set schema=${INPUT_SCHEMA} --set table=${INPUT_TABLE}  \
-  --set column=${TIMESTAMP_COLUMN} --set oldest_record='${OLDEST_RECORD}' \
+  --set column=${TIMESTAMP_COLUMN} --set oldest_record="${OLDEST_RECORD}" \
   --set lag_minutes=${LAG_MINUTES} -f /usr/src/pg-db-sync/export.sql | \
   tail -n 1 | sed 's/COPY //g')`;
 
