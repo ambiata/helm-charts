@@ -1,4 +1,4 @@
-# The Ambiata Library for Kubernetes Helm Chart
+# The Ambiata Library of Kubernetes Helm Charts
 
 ## List of charts:
 
