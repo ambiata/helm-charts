@@ -1,5 +1,4 @@
 #!/bin/bash
-set -eux
 date;
 
 echo "Synchronize ${INPUT_DB_HOST}:${INPUT_SCHEMA}.\"${INPUT_TABLE}\"";
