@@ -50,3 +50,14 @@ Selector labels
 app.kubernetes.io/name: {{ include "pgdbsync.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+Export Statement ConfigMap
+*/}}
+{{- define "pgdbsync.customExportStatementConfigMap" -}}
+{{- if .Values.customExportStatementConfigMap }}
+{{- .Values.customExportStatementConfigMap }}
+{{- else }}
+{{- printf "%s-export-statement" (include "pgdbsync.fullname" .) }}
+{{- end }}
+{{- end }}

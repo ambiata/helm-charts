@@ -1,0 +1,15 @@
+{{- if not .Values.customExportStatementConfigMap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "pgdbsync.fullname" . }}-export-statement
+data:
+  export.sql: |-
+    CREATE TEMP VIEW _ATMO_EXP AS
+    SELECT
+    *
+    FROM :schema.:"table"
+    WHERE :"column" > :'oldest_record'::timestamp
+    AND :"column" < now()::timestamp - interval :'lag_minutes' minute;
+    \copy (select * from _ATMO_EXP) TO '/tmp/pg-to-pg-sync.copy' WITH CSV;
+{{- end }}
