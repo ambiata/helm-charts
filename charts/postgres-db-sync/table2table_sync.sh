@@ -55,10 +55,13 @@ if [[ -v ${PROMETHEUS_PUSHGATEWAY_URL} ]]
 then
   echo "Pushing Job Metrics to ${PROMETHEUS_PUSHGATEWAY_URL}";
   METRICS_KEY="node=\"${K8S_NODE_NAME}\", namespace=\"${K8S_POD_NAMESPACE}\", pod_ip=\"${K8S_POD_IP}\"";
+  echo "Metrics Key is ${METRICS_KEY}";
   cat <<EOF | curl --data-binary @- http://${PROMETHEUS_PUSHGATEWAY_URL}/metrics/job/${CRONJOB_NAME}/instance/${K8S_POD_NAME}
-  # TYPE pg_db_sync_exported_records counter
-  postgres_db_sync_exported_records{$METRICS_KEY} ${EXPORTED_RECORDS}
-  # TYPE pg_db_sync_imported_records counter
-  postgres_db_sync_imported_records{$METRICS_KEY} ${IMPORTED_RECORDS}
-  EOF;
+# TYPE pg_db_sync_exported_records counter
+postgres_db_sync_exported_records{${METRICS_KEY}} ${EXPORTED_RECORDS}
+# TYPE pg_db_sync_imported_records counter
+postgres_db_sync_imported_records{${METRICS_KEY}} ${IMPORTED_RECORDS}
+EOF
 fi
+
+date;
