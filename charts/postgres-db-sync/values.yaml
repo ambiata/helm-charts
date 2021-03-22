@@ -58,3 +58,9 @@ cronjob:
 #     outputTable: atmosphere_entities
 #     outputDB: greenplum
 #     outputSchema: mod_rtde
+
+customExportStatementConfigMap: ""
+
+createTargetTableConfigMap: ""
+
+PrometheusPushGatewayURL: ""

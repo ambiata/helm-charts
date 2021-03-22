@@ -59,14 +59,52 @@ spec:
                     name: {{ $dbValues.secret }}
                     key: {{ $dbValues.passwordKey }}
               {{ end }}
+              {{- if .Values.PrometheusPushGatewayURL }}
+              - name: K8S_NODE_NAME
+                valueFrom:
+                  fieldRef:
+                    fieldPath: spec.nodeName
+              - name: K8S_POD_NAME
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.name
+              - name: K8S_POD_NAMESPACE
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.namespace
+              - name: K8S_POD_IP
+                valueFrom:
+                  fieldRef:
+                    fieldPath: status.podIP
+              - name: PROMETHEUS_PUSHGATEWAY_URL
+                value: {{ .Values.PrometheusPushGatewayURL }}
+              - name: CRONJOB_NAME
+                value: {{ include "pgdbsync.fullname" . }}
+              {{- end }}
             volumeMounts:
               - name: config-volume
                 mountPath: /usr/local/bin
+              - name: export-query
+                mountPath: /usr/src/pg-db-sync/export.sql
+                subPath: export.sql
+              {{- if .Values.createTargetTableConfigMap }}
+              - name: create-target-table
+                mountPath: /usr/src/pg-db-sync/create_target.sql
+                subPath: create_target.sql
+              {{- end }}
           volumes:
             - name: config-volume
               configMap:
                 name: {{ include "pgdbsync.fullname" . }}-configmap
                 defaultMode: 0777
+            - name: export-query
+              configMap:
+                name: {{ include "pgdbsync.customExportStatementConfigMap" . }}
+            {{- if .Values.createTargetTableConfigMap }}
+            - name: create-target-table
+              configMap:
+                name: {{ .Values.createTargetTableConfigMap }}
+            {{- end }}
           restartPolicy: {{ $.Values.cronjob.restartPolicy }}
           {{- if $.Values.imagePullSecrets }}
           imagePullSecrets:
