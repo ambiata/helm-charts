@@ -51,7 +51,7 @@ export IMPORTED_RECORDS=`(psql -c "\copy ${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}\" FR
 echo "${IMPORTED_RECORDS} records imported to ${OUTPUT_DB_NAME}:${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}\"";
 
 # Prometheus Push Gateway Metrics
-if [[ -v ${PROMETHEUS_PUSHGATEWAY_URL} ]]
+if [[ -v PROMETHEUS_PUSHGATEWAY_URL ]]
 then
   echo "Pushing Job Metrics to ${PROMETHEUS_PUSHGATEWAY_URL}";
   METRICS_KEY="node=\"${K8S_NODE_NAME}\", namespace=\"${K8S_POD_NAMESPACE}\", pod_ip=\"${K8S_POD_IP}\"";
