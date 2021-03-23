@@ -1,8 +1,8 @@
 #!/bin/bash
 date;
 
-export INPUT="${INPUT_DB_NAME}:${INPUT_SCHEMA}.\"${INPUT_TABLE}\""
-export OUTPUT="${OUTPUT_DB_NAME}:${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}\""
+export INPUT="${INPUT_DB_NAME}:${INPUT_SCHEMA}.${INPUT_TABLE}"
+export OUTPUT="${OUTPUT_DB_NAME}:${OUTPUT_SCHEMA}.${OUTPUT_TABLE}"
 
 echo "Synchronize ${INPUT}";
 echo "to ${OUTPUT}";
