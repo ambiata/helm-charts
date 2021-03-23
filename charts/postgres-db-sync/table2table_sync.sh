@@ -1,8 +1,11 @@
 #!/bin/bash
 date;
 
-echo "Synchronize ${INPUT_DB_HOST}:${INPUT_SCHEMA}.\"${INPUT_TABLE}\"";
-echo "to ${OUTPUT_DB_NAME}:${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}\"";
+export INPUT="${INPUT_DB_NAME}:${INPUT_SCHEMA}.\"${INPUT_TABLE}\""
+export OUTPUT="${OUTPUT_DB_NAME}:${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}\""
+
+echo "Synchronize ${INPUT}";
+echo "to ${OUTPUT}";
 
 # Output DB Connection
 export PGHOST=${OUTPUT_DB_HOST} PGDATABASE=${OUTPUT_DB_NAME} PGUSER=${OUTPUT_DB_USER} PGPASSWORD=${OUTPUT_DB_PASS};
@@ -28,6 +31,8 @@ export OLDEST_RECORD=`(psql --tuples-only -c "\
   FROM ${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}\"; \
 " | xargs)`;
 
+export OLDEST_RECORD_EPOCH=`(date -d "${OLDEST_RECORD}:00"  +"%s")`;
+
 echo "Oldest record timestamp at target ${OLDEST_RECORD}";
 
 # Input DB Connection
@@ -40,7 +45,7 @@ export EXPORTED_RECORDS=`(psql --single-transaction \
   --set lag_minutes=${LAG_MINUTES} -f /usr/src/pg-db-sync/export.sql | \
   tail -n 1 | sed 's/COPY //g')`;
 
-echo "${EXPORTED_RECORDS} records exported from ${INPUT_SCHEMA}.\"${INPUT_TABLE}\"";
+echo "${EXPORTED_RECORDS} records exported from ${INPUT}";
 
 # Output DB Connection
 export PGHOST=${OUTPUT_DB_HOST} PGDATABASE=${OUTPUT_DB_NAME} PGUSER=${OUTPUT_DB_USER} PGPASSWORD=${OUTPUT_DB_PASS};
@@ -48,19 +53,21 @@ export PGHOST=${OUTPUT_DB_HOST} PGDATABASE=${OUTPUT_DB_NAME} PGUSER=${OUTPUT_DB_
 # Copy saved CSV -> Output Table
 export IMPORTED_RECORDS=`(psql -c "\copy ${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}\" FROM '/tmp/pg-to-pg-sync.copy' WITH CSV;" | sed 's/COPY //g')`;
 
-echo "${IMPORTED_RECORDS} records imported to ${OUTPUT_DB_NAME}:${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}\"";
+echo "${IMPORTED_RECORDS} records imported to ${OUTPUT}";
 
 # Prometheus Push Gateway Metrics
 if [[ -v PROMETHEUS_PUSHGATEWAY_URL ]]
 then
   echo "Pushing Job Metrics to ${PROMETHEUS_PUSHGATEWAY_URL}";
-  METRICS_KEY="node=\"${K8S_NODE_NAME}\", namespace=\"${K8S_POD_NAMESPACE}\", pod_ip=\"${K8S_POD_IP}\"";
+  METRICS_KEY="source=\"${INPUT}\", target=\"${OUTPUT}\", node=\"${K8S_NODE_NAME}\", namespace=\"${K8S_POD_NAMESPACE}\", pod_ip=\"${K8S_POD_IP}\"";
   echo "Metrics Key is ${METRICS_KEY}";
   cat <<EOF | curl --data-binary @- http://${PROMETHEUS_PUSHGATEWAY_URL}/metrics/job/${CRONJOB_NAME}/instance/${K8S_POD_NAME}
-# TYPE postgres_db_sync_exported_records counter
+# TYPE postgres_db_sync_exported_records gauge
 postgres_db_sync_exported_records{${METRICS_KEY}} ${EXPORTED_RECORDS}
-# TYPE postgres_db_sync_imported_records counter
+# TYPE postgres_db_sync_imported_records gauge
 postgres_db_sync_imported_records{${METRICS_KEY}} ${IMPORTED_RECORDS}
+# TYPE postgres_db_sync_since_epoch gauge
+postgres_db_sync_since_epoch{${METRICS_KEY}} ${OLDEST_RECORD_EPOCH}
 EOF
 fi
 
