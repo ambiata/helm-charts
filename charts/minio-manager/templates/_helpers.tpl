@@ -57,12 +57,12 @@ Create envs template for minio connection
 - name: MINIO_ACCESS_KEY
   valueFrom:
     secretKeyRef:
-      key: {{ .secretKeys.accessKey | default "accessKey" }}
+      key: {{ .secretKeys.accessKey | default "accesskey" }}
       name: {{ required "The secret for minio credentials minioAdminCredentials.secretName is required" .secretName }}
 - name: MINIO_SECRET_KEY
   valueFrom:
     secretKeyRef:
-      key: {{ .secretKeys.secretKey | default "secretKey" }}
+      key: {{ .secretKeys.secretKey | default "secretkey" }}
       name: {{ .secretName }}
 - name: MINIO_ENDPOINT
   valueFrom:
@@ -117,5 +117,5 @@ Create USER environment variable
   valueFrom:
     secretKeyRef:
       name: {{ .user.userCredentialsSecret }}
-      key: {{ .user.accessKey | default "accessKey" }}
+      key: {{ .user.accessKey | default "accesskey" }}
 {{- end }}
