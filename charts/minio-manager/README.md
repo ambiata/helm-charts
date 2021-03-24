@@ -36,10 +36,10 @@ The following table lists the parameters of this chart.
 |`users[i].secretKey`                             | Key in the secret containing the user's password (secretkey)               |secretkey                   |
 |`users[i].policy`                                | Name of the policy to use. Can be a policy from the created one. Minio has `readonly`, `writeonly` and `readwrite` default policies applied for all buckets) |readonly |
 |`policies`                                       | List of minio policies to create. Every policy have the following fields: `name`, `buckets` (non empty list of buckets and allowed actions on which the policy apply, see values.yaml). ||
-|`minioAdminCredentials.secretKeys.endpointUrl`   | Name of the secret key for the endpoint field                              |MINIO_ENDPOINT_URL          |
-|`minioAdminCredentials.secretKeys.secretKey`     | Name of the secret key for admin secret key field                          |MINIO_SECRET_KEY            |
-|`minioAdminCredentials.secretKeys.accessKey`     | Name of the secret key for admin access key field                          |MINIO_ACCESS_KEY            |
-|`minioAdminCredentials.secretKeys.useSsl`        | Name of the secret key for use ssl field                                   |MINIO_USE_SSL               |
+|`minioAdminCredentials.secretKeys.endpointUrl`   | Name of the secret key for the endpoint field                              |endpointUrl                 |
+|`minioAdminCredentials.secretKeys.secretKey`     | Name of the secret key for admin secret key field                          |secretKey                   |
+|`minioAdminCredentials.secretKeys.accessKey`     | Name of the secret key for admin access key field                          |accessKey                   |
+|`minioAdminCredentials.secretKeys.useSsl`        | Name of the secret key for use ssl field                                   |useSsl                      |
 |`image.repository`                               | Repository of the minio image                                              |minio/mc                    |
 |`image.pullPolicy`                               | Kubernetes image pull policy                                               |IfNotPresent                |
 |`image.tag`                                      | Tag of the minio image                                                     |RELEASE.2020-11-25T23-04-07Z|

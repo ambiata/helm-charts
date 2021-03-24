@@ -57,22 +57,22 @@ Create envs template for minio connection
 - name: MINIO_ACCESS_KEY
   valueFrom:
     secretKeyRef:
-      key: {{ .secretKeys.accessKey }}
+      key: {{ .secretKeys.accessKey | default "accessKey" }}
       name: {{ required "The secret for minio credentials minioAdminCredentials.secretName is required" .secretName }}
 - name: MINIO_SECRET_KEY
   valueFrom:
     secretKeyRef:
-      key: {{ .secretKeys.secretKey }}
+      key: {{ .secretKeys.secretKey | default "secretKey" }}
       name: {{ .secretName }}
 - name: MINIO_ENDPOINT
   valueFrom:
     secretKeyRef:
-      key: {{ .secretKeys.endpointUrl }}
+      key: {{ .secretKeys.endpointUrl | default "endpointUrl" }}
       name: {{ .secretName }}
 - name: MINIO_USE_SSL
   valueFrom:
     secretKeyRef:
-      key: {{ .secretKeys.useSsl }}
+      key: {{ .secretKeys.useSsl | default "useSsl" }}
       name: {{ .secretName }}
 {{- end }}
 
