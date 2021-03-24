@@ -30,12 +30,12 @@ The following table lists the parameters of this chart.
 | Parameter (* = required parameters)             | Description                                                                | default                    |
 |:------------------------------------------------|:---------------------------------------------------------------------------|:---------------------------|
 |`minioAdminCredentials.secretName` *             | The name of the secret containing the admin credentials. By the default, the following fields need to be provided: `MINIO_ENDPOINT_URL`, `MINIO_SECRET_KEY`, `MINIO_ACCESS_KEY`, `MINIO_USE_SSL`. The name of the field can be override with `minioAdminCredentials.secretKeys`||
-|`users`                                          | List of users that need to be added.                                       |[]                         |
+|`users`                                          | List of users that need to be added.                                       |[]                          |
 |`users[i].userCredentialsSecret` *               | Name of the secret containing the user credentials                         |                            |
-|`users[i].usernameSecretKey`                     | Key in the secret containing the user's username                           |username                    |
-|`users[i].passwordSecretKey`                     | Key in the secret containing the user's password                           |password                    |
+|`users[i].accessKey`                             | Key in the secret containing the user's username (accesskey)               |accesskey                   |
+|`users[i].secretKey`                             | Key in the secret containing the user's password (secretkey)               |secretkey                   |
 |`users[i].policy`                                | Name of the policy to use. Can be a policy from the created one. Minio has `readonly`, `writeonly` and `readwrite` default policies applied for all buckets) |readonly |
-|`policies`                                       | List of minio policies to create. Every policy have the following fields: `name`, `readOnly` (boolean selecting if the policy is read only or readwrite. Default to `true`), `buckets` (non empty list of buckets on which the policy apply). ||
+|`policies`                                       | List of minio policies to create. Every policy have the following fields: `name`, `buckets` (non empty list of buckets and allowed actions on which the policy apply, see values.yaml). ||
 |`minioAdminCredentials.secretKeys.endpointUrl`   | Name of the secret key for the endpoint field                              |MINIO_ENDPOINT_URL          |
 |`minioAdminCredentials.secretKeys.secretKey`     | Name of the secret key for admin secret key field                          |MINIO_SECRET_KEY            |
 |`minioAdminCredentials.secretKeys.accessKey`     | Name of the secret key for admin access key field                          |MINIO_ACCESS_KEY            |

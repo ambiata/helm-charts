@@ -23,14 +23,23 @@ buckets: {}
 # List of users with their accesses
 users: []
 # - userCredentialsSecret: my-secret
-#   usernameSecretKey: username
-#   passwordSecretKey: password
+#   accessKey: accesskey
+#   secretKey: secretkey
 #   policy: readwrite
 
 policies: []
 # - name: new-policy
-#   readOnly: true (default to true)
-#   buckets: []
+#   buckets:
+#   - name: bucket1
+#     actions:
+#       - "s3:ListBucket"
+#       - "s3:GetObject"
+#   - name: bucket2
+#     actions:
+#       - "s3:ListBucket"
+#       - "s3:GetObject"
+#       - "s3:PutObject"
+#       - "s3:DeleteObject"
 
 minioAdminCredentials:
   secretName: ""
