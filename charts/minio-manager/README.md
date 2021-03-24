@@ -37,8 +37,8 @@ The following table lists the parameters of this chart.
 |`users[i].policy`                                | Name of the policy to use. Can be a policy from the created one. Minio has `readonly`, `writeonly` and `readwrite` default policies applied for all buckets) |readonly |
 |`policies`                                       | List of minio policies to create. Every policy have the following fields: `name`, `buckets` (non empty list of buckets and allowed actions on which the policy apply, see values.yaml). ||
 |`minioAdminCredentials.secretKeys.endpointUrl`   | Name of the secret key for the endpoint field                              |endpointUrl                 |
-|`minioAdminCredentials.secretKeys.secretKey`     | Name of the secret key for admin secret key field                          |secretKey                   |
-|`minioAdminCredentials.secretKeys.accessKey`     | Name of the secret key for admin access key field                          |accessKey                   |
+|`minioAdminCredentials.secretKeys.secretKey`     | Name of the secret key for admin secret key field                          |secretkey                   |
+|`minioAdminCredentials.secretKeys.accessKey`     | Name of the secret key for admin access key field                          |accesskey                   |
 |`minioAdminCredentials.secretKeys.useSsl`        | Name of the secret key for use ssl field                                   |useSsl                      |
 |`image.repository`                               | Repository of the minio image                                              |minio/mc                    |
 |`image.pullPolicy`                               | Kubernetes image pull policy                                               |IfNotPresent                |

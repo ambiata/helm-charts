@@ -44,7 +44,7 @@ policies: []
 minioAdminCredentials:
   secretName: ""
   secretKeys:
-    accessKey: accessKey
-    secretKey: secretKey
+    accessKey: accesskey
+    secretKey: secretkey
     endpointUrl: endpointUrl
     useSsl: useSsl
