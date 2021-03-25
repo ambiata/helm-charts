@@ -4,7 +4,9 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: grant-access-{{ $username }}-{{ .db }}{{ if .readOnly }}-readonly{{ end }}
+  generateName: grant-access-{{ $username }}-{{ .db }}{{ if .readOnly }}-readonly{{ end }}-
+  annotations:
+    argocd.argoproj.io/hook: PreSync
 spec:
   backoffLimit: 4
   activeDeadlineSeconds: 120
