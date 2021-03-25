@@ -4,7 +4,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  generateName: grant-access-
+  name: grant-access-{{ $username }}-{{ .db }}{{ if .readOnly }}-readonly{{ end }}
   annotations:
     argocd.argoproj.io/hook: PreSync
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
