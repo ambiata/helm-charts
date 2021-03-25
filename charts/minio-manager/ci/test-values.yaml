@@ -15,26 +15,34 @@ users:
   - userCredentialsSecret: alice-minio-secret
     usernameSecretKey: username1
     passwordSecretKey: password1
-    policy: policy-bucket1and2
+    policy: policy-bucket1and2-get
   - userCredentialsSecret: bob-minio-secret
     usernameSecretKey: username2
     passwordSecretKey: password2
     policy: readonly
   - userCredentialsSecret: carl-minio-secret
-    policy: policy-bucket3
+    policy: policy-bucket3-delete
   - userCredentialsSecret: dave-minio-secret
 
 policies:
-  - name: policy-bucket1and2
-    readOnly: true
+  - name: policy-bucket1and2-read
     buckets:
-      - "bucket1"
-      - "bucket2"
-  - name: policy-bucket3
-    readOnly: false
+    - name: "bucket1"
+      actions:
+        - "s3:ListBucket"
+        - "s3:GetObject"
+    - name: "bucket2"
+      actions:
+        - "s3:ListBucket"
+        - "s3:GetObject"
+  - name: policy-bucket3-fullaccess
     buckets:
-      - "bucket3"
-
+    - name: "bucket3"
+      actions:
+        - "s3:ListBucket"
+        - "s3:GetObject"
+        - "s3:PutObject"
+        - "s3:DeleteObject"
 
 minioAdminCredentials:
   secretName: minio-secrets

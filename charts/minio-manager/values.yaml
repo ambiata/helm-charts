@@ -23,19 +23,28 @@ buckets: {}
 # List of users with their accesses
 users: []
 # - userCredentialsSecret: my-secret
-#   usernameSecretKey: username
-#   passwordSecretKey: password
+#   accessKey: accesskey
+#   secretKey: secretkey
 #   policy: readwrite
 
 policies: []
 # - name: new-policy
-#   readOnly: true (default to true)
-#   buckets: []
+#   buckets:
+#   - name: bucket1
+#     actions:
+#       - "s3:ListBucket"
+#       - "s3:GetObject"
+#   - name: bucket2
+#     actions:
+#       - "s3:ListBucket"
+#       - "s3:GetObject"
+#       - "s3:PutObject"
+#       - "s3:DeleteObject"
 
 minioAdminCredentials:
   secretName: ""
   secretKeys:
-    accessKey: MINIO_ACCESS_KEY
-    secretKey: MINIO_SECRET_KEY
-    endpointUrl: MINIO_ENDPOINT_URL
-    useSsl: MINIO_USE_SSL
+    accessKey: accesskey
+    secretKey: secretkey
+    endpointUrl: endpointUrl
+    useSsl: useSsl

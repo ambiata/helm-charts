@@ -54,7 +54,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: {{ $user.userCredentialsSecret }}
-              key: {{ $user.passwordSecretKey | default "password" }}
+              key: {{ $user.SecretKey | default "secretkey" }}
         {{- end }}
         {{- include "minio-manager.minioAdminCredentialEnvs" $.Values.minioAdminCredentials | indent 8 }}
       containers:
