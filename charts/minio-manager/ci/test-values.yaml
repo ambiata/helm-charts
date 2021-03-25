@@ -25,7 +25,7 @@ users:
   - userCredentialsSecret: dave-minio-secret
 
 policies:
-  - name: policy-bucket1and2-get
+  - name: policy-bucket1and2-read
     buckets:
     - name: "bucket1"
       actions:
@@ -35,7 +35,7 @@ policies:
       actions:
         - "s3:ListBucket"
         - "s3:GetObject"
-  - name: policy-bucket3-delete
+  - name: policy-bucket3-fullaccess
     buckets:
     - name: "bucket3"
       actions:
