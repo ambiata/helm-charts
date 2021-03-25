@@ -3,9 +3,10 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: create-db-{{ .name }}
-  generateName: create-db-{{ .name }}-
+  generateName: create-db-
   annotations:
     argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
 spec:
   backoffLimit: 4
   activeDeadlineSeconds: 120
