@@ -87,6 +87,9 @@ spec:
               - name: export-query
                 mountPath: /usr/src/pg-db-sync/export.sql
                 subPath: export.sql
+              - name: import-query
+                mountPath: /usr/src/pg-db-sync/import.sql
+                subPath: import.sql
               {{- if .Values.createTargetTableConfigMap }}
               - name: create-target-table
                 mountPath: /usr/src/pg-db-sync/create_target.sql
@@ -100,6 +103,9 @@ spec:
             - name: export-query
               configMap:
                 name: {{ include "pgdbsync.customExportStatementConfigMap" . }}
+            - name: import-query
+                configMap:
+                  name: {{ include "pgdbsync.customImportStatementConfigMap" . }}
             {{- if .Values.createTargetTableConfigMap }}
             - name: create-target-table
               configMap:
