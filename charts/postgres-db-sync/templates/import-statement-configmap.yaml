@@ -1,0 +1,9 @@
+{{- if not .Values.customImportStatementConfigMap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "pgdbsync.fullname" . }}-import-statement
+data:
+  import.sql: |-
+    \copy :"schema".:"table" FROM '/tmp/pg-to-pg-sync.copy' WITH CSV;"
+{{- end }}

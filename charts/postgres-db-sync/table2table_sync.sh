@@ -51,7 +51,10 @@ echo "${EXPORTED_RECORDS} records exported from ${INPUT}";
 export PGHOST=${OUTPUT_DB_HOST} PGDATABASE=${OUTPUT_DB_NAME} PGUSER=${OUTPUT_DB_USER} PGPASSWORD=${OUTPUT_DB_PASS};
 
 # Copy saved CSV -> Output Table
-export IMPORTED_RECORDS=`(psql -c "\copy ${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}\" FROM '/tmp/pg-to-pg-sync.copy' WITH CSV;" | sed 's/COPY //g')`;
+export IMPORTED_RECORDS=`(psql --single-transaction \
+  --set schema=${OUTPUT_SCHEMA} --set table=${OUTPUT_TABLE}  \
+  -f /usr/src/pg-db-sync/import.sql | \
+  tail -n 1 | sed 's/COPY //g')`;
 
 echo "${IMPORTED_RECORDS} records imported to ${OUTPUT}";
 

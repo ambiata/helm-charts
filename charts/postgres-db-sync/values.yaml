@@ -61,6 +61,8 @@ cronjob:
 
 customExportStatementConfigMap: ""
 
+customImportStatementConfigMap: ""
+
 createTargetTableConfigMap: ""
 
 PrometheusPushGatewayURL: ""
