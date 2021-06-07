@@ -14,7 +14,7 @@ export PGHOST=${OUTPUT_DB_HOST} PGDATABASE=${OUTPUT_DB_NAME} PGUSER=${OUTPUT_DB_
 if [[ -f "/usr/src/pg-db-sync/create_target.sql" ]]
 then
   echo "Creating ${OUTPUT_DB_NAME}:${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}";
-  psql --single-transaction -f /usr/src/pg-db-sync/create_target.sql;
+  psql --single-transaction  --set schema=${OUTPUT_SCHEMA} --set table=${OUTPUT_TABLE} --set list_column_names_data_types="${OUTPUT_LIST_COLUMN_NAMES_DATA_TYPES}" -f /usr/src/pg-db-sync/create_target.sql;
 fi
 
 # Truncate table if required

@@ -58,9 +58,17 @@ cronjob:
 #     outputTable: atmosphere_entities
 #     outputDB: greenplum
 #     outputSchema: mod_rtde
+#     outputListColumnNamesDataTypes: "(client_number varchar(40), claim_count bigint, update_dtm timestamp)"
 
 customExportStatementConfigMap: ""
 
 createTargetTableConfigMap: ""
 
 prometheusPushGatewayURL: ""
+
+# syncMethod: "tempTables"
+#  - load to a temporary table then rename the tables to reduce downtime
+# syncMethod: "timestamp"
+#  - load just the new records through utilisation of a timestamp column
+#    eg. "date_created"
+syncMethod: "tempTables"
