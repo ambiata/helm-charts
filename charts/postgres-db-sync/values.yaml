@@ -63,4 +63,4 @@ customExportStatementConfigMap: ""
 
 createTargetTableConfigMap: ""
 
-PrometheusPushGatewayURL: ""
+prometheusPushGatewayURL: ""

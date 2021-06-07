@@ -59,7 +59,7 @@ spec:
                     name: {{ $dbValues.secret }}
                     key: {{ $dbValues.passwordKey }}
               {{ end }}
-              {{- if .Values.PrometheusPushGatewayURL }}
+              {{- if .Values.prometheusPushGatewayURL }}
               - name: K8S_NODE_NAME
                 valueFrom:
                   fieldRef:
@@ -77,7 +77,7 @@ spec:
                   fieldRef:
                     fieldPath: status.podIP
               - name: PROMETHEUS_PUSHGATEWAY_URL
-                value: {{ .Values.PrometheusPushGatewayURL }}
+                value: {{ .Values.prometheusPushGatewayURL }}
               - name: CRONJOB_NAME
                 value: {{ include "pgdbsync.fullname" . }}
               {{- end }}

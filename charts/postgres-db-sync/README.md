@@ -12,5 +12,5 @@ to extract the records from the source database/tables.
 - `createTargetTableConfigMap`: should point to a Configmap that contains a file named `create_target.sql` with the SQL code
 to create the target table on the target database.
   
-- `PrometheusPushGatewayURL`: URL of a Prometheus Push Gateway Server to send the metrics of the job.
+- `prometheusPushGatewayURL`: URL of a Prometheus Push Gateway Server to send the metrics of the job.
 
