@@ -42,7 +42,11 @@ spec:
                 export TRUNCATE_TARGET_TABLE='{{ $.Values.cronjob.truncateTargetTable }}';
                 export LAG_MINUTES='{{ $.Values.cronjob.lagMinutes }}';
 
-                /usr/local/bin/table2table_sync.sh
+                {{ if $.Values.syncMethod == "tempTables" }}
+                /usr/local/bin/temp_table_sync.sh
+                {{ else }}
+                /usr/local/bin/timestamp_sync.sh
+                {{ end }}
 
                 {{ end }}
 
