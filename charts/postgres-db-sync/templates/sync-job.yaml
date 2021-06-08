@@ -38,6 +38,7 @@ spec:
                 export OUTPUT_DB_PASS=${PGDBSYNC_PASSWORD_{{ .outputDB }}};
                 export OUTPUT_SCHEMA='{{ .outputSchema }}';
                 export OUTPUT_TABLE='{{ .outputTable }}';
+                export OUTPUT_LIST_COLUMN_NAMES_DATA_TYPES='{{ .outputListColumnNamesDataTypes }}';
                 export TIMESTAMP_COLUMN='{{ .timestampColumn }}';
                 export TRUNCATE_TARGET_TABLE='{{ $.Values.cronjob.truncateTargetTable }}';
                 export LAG_MINUTES='{{ $.Values.cronjob.lagMinutes }}';
@@ -88,27 +89,16 @@ spec:
             volumeMounts:
               - name: config-volume
                 mountPath: /usr/local/bin
-              - name: export-query
-                mountPath: /usr/src/pg-db-sync/export.sql
-                subPath: export.sql
-              {{- if .Values.createTargetTableConfigMap }}
-              - name: create-target-table
-                mountPath: /usr/src/pg-db-sync/create_target.sql
-                subPath: create_target.sql
-              {{- end }}
+              - name: export-queries
+                mountPath: /usr/src/pg-db-sync
           volumes:
             - name: config-volume
               configMap:
                 name: {{ include "pgdbsync.fullname" . }}-configmap
                 defaultMode: 0777
-            - name: export-query
+            - name: export-queries
               configMap:
                 name: {{ include "pgdbsync.customExportStatementConfigMap" . }}
-            {{- if .Values.createTargetTableConfigMap }}
-            - name: create-target-table
-              configMap:
-                name: {{ .Values.createTargetTableConfigMap }}
-            {{- end }}
           restartPolicy: {{ $.Values.cronjob.restartPolicy }}
           {{- if $.Values.imagePullSecrets }}
           imagePullSecrets:

@@ -34,7 +34,7 @@ echo "Creating ${OUTPUT_DB_NAME}:${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}";
 psql -e --single-transaction --set schema=${OUTPUT_SCHEMA} --set table=${OUTPUT_TABLE} --set list_column_names_data_types="${OUTPUT_LIST_COLUMN_NAMES_DATA_TYPES}" -f /usr/src/pg-db-sync/create_target.sql;
 
 echo "Creating ${OUTPUT_DB_NAME}:\"${OUTPUT_SCHEMA}.${OUTPUT_TABLE_TEMP_2}\"";
-psql -e --single-transaction --set schema=${OUTPUT_SCHEMA} --set table=${OUTPUT_TABLE_TEMP_2} --set list_column_names_data_types="${OUTPUT_LIST_COLUMN_NAMES_DATA_TYPES}" -f /usr/src/pg-db-sync/create_table.sql;
+psql -e --single-transaction --set schema=${OUTPUT_SCHEMA} --set table=${OUTPUT_TABLE_TEMP_2} --set list_column_names_data_types="${OUTPUT_LIST_COLUMN_NAMES_DATA_TYPES}" -f /usr/src/pg-db-sync/create_target.sql;
 
 # Copy saved CSV -> Output Table Temp 2
 export IMPORTED_RECORDS=`(psql -e -c "\copy ${OUTPUT_SCHEMA}.${OUTPUT_TABLE_TEMP_2} FROM '/tmp/edh-to-datastore-table-copy.copy' WITH CSV;" | sed 's/COPY //g')`;
