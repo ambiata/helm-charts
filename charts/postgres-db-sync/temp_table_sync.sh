@@ -22,8 +22,6 @@ echo "${EXPORTED_RECORDS} records exported from ${INPUT}";
 # Output DB Connection
 export PGHOST=${OUTPUT_DB_HOST} PGDATABASE=${OUTPUT_DB_NAME} PGUSER=${OUTPUT_DB_USER} PGPASSWORD=${OUTPUT_DB_PASS};
 
-# TODO = do 2 ABOVE in 1....
-
 # Create target table (required) if it doesn't already exist
 echo "Creating ${OUTPUT_DB_NAME}:${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}\"";
 psql -e --single-transaction --set schema=${OUTPUT_SCHEMA} --set table=${OUTPUT_TABLE} --set list_column_names_data_types="${OUTPUT_LIST_COLUMN_NAMES_DATA_TYPES}" -f /usr/src/pg-db-sync/create_target.sql;
@@ -31,10 +29,8 @@ psql -e --single-transaction --set schema=${OUTPUT_SCHEMA} --set table=${OUTPUT_
 # Copy saved CSV -> Output Table Temp 2
 export LOAD_TABLE=$(psql -e <<EOF
 BEGIN;
-
 delete from ${OUTPUT_SCHEMA}.${OUTPUT_TABLE};
 \copy ${OUTPUT_SCHEMA}.${OUTPUT_TABLE} FROM '/tmp/pg-to-pg-sync.copy' WITH CSV;
-
 COMMIT;
 EOF
 );
