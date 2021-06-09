@@ -29,8 +29,18 @@ echo "Creating ${OUTPUT_DB_NAME}:${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}\"";
 psql -e --single-transaction --set schema=${OUTPUT_SCHEMA} --set table=${OUTPUT_TABLE} --set list_column_names_data_types="${OUTPUT_LIST_COLUMN_NAMES_DATA_TYPES}" -f /usr/src/pg-db-sync/create_target.sql;
 
 # Copy saved CSV -> Output Table Temp 2
-export IMPORTED_RECORDS=`(psql -e --single-transaction -c "delete from ${OUTPUT_SCHEMA}.${OUTPUT_TABLE}; \copy ${OUTPUT_SCHEMA}.${OUTPUT_TABLE} FROM '/tmp/pg-to-pg-sync.copy' WITH CSV;" | sed 's/COPY //g')`;
+export LOAD_TABLE=$(psql -e <<EOF
+BEGIN;
 
+delete from ${OUTPUT_SCHEMA}.${OUTPUT_TABLE};
+\copy ${OUTPUT_SCHEMA}.${OUTPUT_TABLE} FROM '/tmp/pg-to-pg-sync.copy' WITH CSV;
+
+COMMIT;
+EOF
+);
+
+# (Note: not sure yet how to get the number out of the above, though it is echoed anyway)
+export IMPORTED_RECORDS=`(echo $LOAD_TABLE | sed 's/COPY //g')`;
 echo "${IMPORTED_RECORDS} records imported to ${OUTPUT}";
 
 # Prometheus Push Gateway Metrics
