@@ -4,10 +4,6 @@ set -e
 
 export INPUT="${INPUT_DB_NAME}:${INPUT_SCHEMA}.${INPUT_TABLE}"
 export OUTPUT="${OUTPUT_DB_NAME}:${OUTPUT_SCHEMA}.${OUTPUT_TABLE}"
-export OUTPUT_TABLE_TEMP_1=${OUTPUT_TABLE}_temp_1
-export OUTPUT_TABLE_TEMP_2=${OUTPUT_TABLE}_temp_2
-export OUTPUT_TEMP_1=${OUTPUT_DB_NAME}:${OUTPUT_SCHEMA}.${OUTPUT_TABLE_TEMP_1}
-export OUTPUT_TEMP_2=${OUTPUT_DB_NAME}:${OUTPUT_SCHEMA}.${OUTPUT_TABLE_TEMP_2}
 
 echo "Synchronize ${INPUT}";
 echo "to ${OUTPUT}";
@@ -26,27 +22,14 @@ echo "${EXPORTED_RECORDS} records exported from ${INPUT}";
 # Output DB Connection
 export PGHOST=${OUTPUT_DB_HOST} PGDATABASE=${OUTPUT_DB_NAME} PGUSER=${OUTPUT_DB_USER} PGPASSWORD=${OUTPUT_DB_PASS};
 
-# Drop table temp 2 just in case it exists
-echo "Drop ${OUTPUT_TEMP_2}";
-psql -e -c "DROP TABLE IF EXISTS ${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE_TEMP_2}\";";
+# TODO = do 2 ABOVE in 1....
 
-# Create target table (required)
+# Create target table (required) if it doesn't already exist
 echo "Creating ${OUTPUT_DB_NAME}:${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}\"";
 psql -e --single-transaction --set schema=${OUTPUT_SCHEMA} --set table=${OUTPUT_TABLE} --set list_column_names_data_types="${OUTPUT_LIST_COLUMN_NAMES_DATA_TYPES}" -f /usr/src/pg-db-sync/create_target.sql;
 
-echo "Creating ${OUTPUT_DB_NAME}:\"${OUTPUT_SCHEMA}.${OUTPUT_TABLE_TEMP_2}\"";
-psql -e --single-transaction --set schema=${OUTPUT_SCHEMA} --set table=${OUTPUT_TABLE_TEMP_2} --set list_column_names_data_types="${OUTPUT_LIST_COLUMN_NAMES_DATA_TYPES}" -f /usr/src/pg-db-sync/create_target.sql;
-
 # Copy saved CSV -> Output Table Temp 2
-export IMPORTED_RECORDS=`(psql -e -c "\copy ${OUTPUT_SCHEMA}.${OUTPUT_TABLE_TEMP_2} FROM '/tmp/pg-to-pg-sync.copy' WITH CSV;" | sed 's/COPY //g')`;
-
-# Drop the table temp 1
-echo "Drop ${OUTPUT_TEMP_1}";
-psql -e -c "DROP TABLE IF EXISTS ${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE_TEMP_1}\";";
-
-# Rename tables to permute them
-psql -e -c "ALTER TABLE \"${OUTPUT_TABLE}\" RENAME TO \"${OUTPUT_TABLE_TEMP_1}\";";
-psql -e -c "ALTER TABLE \"${OUTPUT_TABLE_TEMP_2}\" RENAME TO \"${OUTPUT_TABLE}\";";
+export IMPORTED_RECORDS=`(psql -e --single-transaction -c "delete from ${OUTPUT_SCHEMA}.${OUTPUT_TABLE}; \copy ${OUTPUT_SCHEMA}.${OUTPUT_TABLE} FROM '/tmp/pg-to-pg-sync.copy' WITH CSV;" | sed 's/COPY //g')`;
 
 echo "${IMPORTED_RECORDS} records imported to ${OUTPUT}";
 

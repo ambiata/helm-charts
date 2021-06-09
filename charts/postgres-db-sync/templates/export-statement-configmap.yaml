@@ -13,11 +13,11 @@ data:
     AND :"column" < now()::timestamp - interval :'lag_minutes' minute;
     \copy (select * from _TIMESTAMP_EXP) TO '/tmp/pg-to-pg-sync.copy' WITH CSV;
   export_all.sql: |-
-    CREATE TEMP VIEW _TIMESTAMP_EXP AS
+    CREATE TEMP VIEW _TABLE_EXP AS
     SELECT
     *
     FROM :schema.:"table";
-    \copy (select * from _TIMESTAMP_EXP) TO '/tmp/pg-to-pg-sync.copy' WITH CSV;
+    \copy (select * from _TABLE_EXP) TO '/tmp/pg-to-pg-sync.copy' WITH CSV;
   create_target.sql: |-
     CREATE TABLE IF NOT EXISTS :schema.:"table" :list_column_names_data_types;
 {{- end }}
