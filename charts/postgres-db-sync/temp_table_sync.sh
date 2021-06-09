@@ -26,7 +26,7 @@ export PGHOST=${OUTPUT_DB_HOST} PGDATABASE=${OUTPUT_DB_NAME} PGUSER=${OUTPUT_DB_
 echo "Creating ${OUTPUT_DB_NAME}:${OUTPUT_SCHEMA}.\"${OUTPUT_TABLE}\"";
 psql -e --single-transaction --set schema=${OUTPUT_SCHEMA} --set table=${OUTPUT_TABLE} --set list_column_names_data_types="${OUTPUT_LIST_COLUMN_NAMES_DATA_TYPES}" -f /usr/src/pg-db-sync/create_target.sql;
 
-# Copy saved CSV -> Output Table Temp 2
+# Copy saved CSV -> Output Table
 export LOAD_TABLE=$(psql -e <<EOF
 BEGIN;
 delete from ${OUTPUT_SCHEMA}.${OUTPUT_TABLE};
