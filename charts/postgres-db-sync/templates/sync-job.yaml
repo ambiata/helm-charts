@@ -48,7 +48,7 @@ spec:
                 {{ else if eq $.Values.syncMethod "timestamp" }}
                 /usr/local/bin/timestamp_sync.sh
                 {{ else }}
-				{{- raise "sync method empty / not supported" }}
+				{{- fail "sync method empty / not supported" }}
                 {{ end }}
 
                 {{ end }}
