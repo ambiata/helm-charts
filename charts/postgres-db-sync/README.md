@@ -4,9 +4,9 @@ We can provide a list of input -> output table mappings and a dictionary of data
 inputs and secret information and have the script sync each table periodically, based 
 on a timestamp column.
 
-Sync Methods:
+## Sync Methods:
 
-## `tempTables`
+### `tempTables`
 
 Arguments to customise the job:
 
@@ -16,7 +16,7 @@ to extract the records from the source database/tables.
 - `createTargetTableConfigMap`: should point to a Configmap that contains a file named `create_target.sql` with the SQL code
 to create the target table on the target database.
 
-## `timestamp`
+### `timestamp`
 
 Arguments to customise the job:
 
