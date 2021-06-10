@@ -45,8 +45,11 @@ spec:
 
                 {{ if eq $.Values.syncMethod "tempTables" }}
                 /usr/local/bin/temp_table_sync.sh
-                {{ else }}
+                {{ else if eq $.Values.syncMethod "timestamp" }}
                 /usr/local/bin/timestamp_sync.sh
+                {{ else }}
+                echo "syncMethod not specified. Please specify this in the chart.";
+                exit 1;
                 {{ end }}
 
                 {{ end }}
