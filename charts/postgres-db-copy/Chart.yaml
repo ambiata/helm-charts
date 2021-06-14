@@ -1,0 +1,10 @@
+apiVersion: v2
+name: postgres-db-copy
+description: A Helm chart to copy postgres tables from one db to another db using pg_dump and pg_restore
+type: application
+version: 0.1.0
+appVersion: 0.1.0
+maintainers:
+  - name: Ambiata
+    email: info@ambiata.com
+    url: www.ambiata.com
