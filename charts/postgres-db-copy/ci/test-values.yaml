@@ -3,14 +3,14 @@ podAnnotations:
 
 sourceDB:
   host: "my-release-3-postgresql"
-  name: "postgres"
+  name: "sourceDB"
   user: "postgres"
   secret: "my-release-3-postgresql"
   passwordKey: postgresql-password
 
 targetDB:
   host: "my-release-3-postgresql"
-  name: "test"
+  name: "targetDB"
   user: "postgres"
   secret: "my-release-3-postgresql"
   passwordKey: postgresql-password
