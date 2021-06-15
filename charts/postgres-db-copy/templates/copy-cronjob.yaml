@@ -49,7 +49,7 @@ spec:
                 -t {{ $table }} \
                 {{- end }}
                 $SOURCE_DB_NAME \
-                > /tmp/db.sql ;
+                > /tmp/db.dump ;
               
               echo "Copy the tables to ${TARGET_DB_HOST}:${TARGET_DB_NAME}";
               PGPASSWORD=${TARGET_DB_PASSWORD} pg_restore \
@@ -57,7 +57,7 @@ spec:
                 -d $TARGET_DB_NAME \
                 -U $TARGET_DB_USER \
                 -p $TARGET_DB_PORT \
-                /tmp/db.sql ;
+                /tmp/db.dump ;
             env:
                 # Source DB 
               - name: SOURCE_DB_HOST
