@@ -38,3 +38,19 @@ jobs:
         with:
           path: ./charts
           version: 1.15.7
+
+  deploy:
+    name: Create new tag
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' &&  github.ref == 'refs/heads/main'
+    needs: [lint-chart]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Bump version and push tag
+      id: push-tag
+      uses: anothrNick/github-tag-action@1.34.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        WITH_V: true
