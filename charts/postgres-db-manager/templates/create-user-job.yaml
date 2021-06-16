@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: create-user-{{ .username }}
+  name: create-user-{{ regexReplaceAll "_" .username "-" }}
 spec:
   backoffLimit: 4
   activeDeadlineSeconds: 120

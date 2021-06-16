@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: create-db-{{ .name }}
+  name: create-db-{{ regexReplaceAll "_" .name "-" }}
 spec:
   backoffLimit: 4
   activeDeadlineSeconds: 120
