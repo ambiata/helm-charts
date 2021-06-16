@@ -62,6 +62,10 @@ spec:
 
               echo "Copy the tables to ${TARGET_DB_HOST}:${TARGET_DB_NAME}";
               PGPASSWORD=${TARGET_DB_PASSWORD} pg_restore \
+                --no-privileges \
+                --clean \
+                --no-owner \
+                --if-exists \
                 -h $TARGET_DB_HOST \
                 -d $TARGET_DB_NAME \
                 -U $TARGET_DB_USER \
