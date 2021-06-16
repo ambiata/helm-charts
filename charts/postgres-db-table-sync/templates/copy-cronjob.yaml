@@ -59,6 +59,7 @@ spec:
                 -e <<EOF
                 BEGIN;
                 {{- range $tableMapping:= $.Values.tableMappings }}
+                TRUNCATE TABLE {{ $tableMapping.outputTable }};
                 COPY {{ $tableMapping.outputTable }} FROM '/tmp/{{ $tableMapping.inputTable }}.dump';
                 {{- end }}
                 COMMIT;
