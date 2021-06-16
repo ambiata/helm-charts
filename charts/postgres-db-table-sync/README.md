@@ -31,7 +31,7 @@ targetDB:
 ```yaml
 tableMappings:
   - inputTable: customers
-    outputTable: custuomers_restored
+    outputTable: customers_restored
 ```
 
 - Define when do you want to copy the tables
