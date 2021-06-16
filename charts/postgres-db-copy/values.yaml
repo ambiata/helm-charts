@@ -34,3 +34,6 @@ targetDB:
   passwordKey: "PGPASSWORD"
 
 tables: []
+
+# create the schema if not exists
+schemasToCreate: []

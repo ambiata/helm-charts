@@ -51,6 +51,15 @@ spec:
                 $SOURCE_DB_NAME \
                 > /tmp/db.dump ;
               
+              {{- range $schema:= $.Values.schemasToCreate }}
+              PGPASSWORD=${TARGET_DB_PASSWORD} psql \
+                -h $TARGET_DB_HOST \
+                -d $TARGET_DB_NAME \
+                -U $TARGET_DB_USER \
+                -p $TARGET_DB_PORT \
+                -c "CREATE SCHEMA IF NOT EXISTS {{ $schema }};"
+              {{- end }}
+
               echo "Copy the tables to ${TARGET_DB_HOST}:${TARGET_DB_NAME}";
               PGPASSWORD=${TARGET_DB_PASSWORD} pg_restore \
                 -h $TARGET_DB_HOST \
