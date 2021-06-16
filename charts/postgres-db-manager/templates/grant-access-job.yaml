@@ -1,10 +1,10 @@
 {{- range $.Values.users }}
-{{- $username := .username -}}
+{{- $username :=  .username -}}
 {{- range .accesses }}
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: grant-access-{{ $username }}-{{ .db }}{{ if .readOnly }}-readonly{{ end }}
+  name: grant-access-{{ regexReplaceAll "_" $username "-" }}-{{ regexReplaceAll "_" .db "-" }}{{ if .readOnly }}-readonly{{ end }}
 spec:
   backoffLimit: 4
   activeDeadlineSeconds: 120
