@@ -1,7 +1,7 @@
-# Postgres DB copy
+# Postgres DB table sync
 
-A chart to copy multiple postgres tables from one database to another one using pg_dump and pg_restore.
-The chart creates the table and syncs the data.
+A chart to sync multiple postgres tables from one database to another one using psql copy
+The chart doesn't create table but only syncs the data.
 
 ## Parameters for this job   
 
@@ -29,7 +29,9 @@ targetDB:
 
 - List the tables to copy
 ```yaml
-tables: []
+tableMappings:
+  - inputTable: customers
+    outputTable: custuomers_restored
 ```
 
 - Define when do you want to copy the tables

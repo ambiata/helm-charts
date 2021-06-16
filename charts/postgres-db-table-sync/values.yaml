@@ -1,0 +1,38 @@
+# Default values for postgres-db-table-sync.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+image:
+  repository: "docker.io/bitnami/postgresql"
+  pullPolicy: IfNotPresent
+  tag: "11.7.0-debian-10-r43"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+cronjob:
+  schedule: "@daily"
+  restartPolicy: "Never"
+
+sourceDB:
+  host: ""
+  name: "postgres"
+  user: "postgres"
+  port: 5432
+  secret: ""
+  passwordKey: "PGPASSWORD"
+
+targetDB:
+  host: ""
+  name: "postgres"
+  user: "postgres"
+  port: 5432
+  secret: ""
+  passwordKey: "PGPASSWORD"
+
+tableMappings: []
+  # - inputTable: customers
+  #   outputTable: customers_restored
