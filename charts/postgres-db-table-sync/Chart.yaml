@@ -1,0 +1,10 @@
+apiVersion: v2
+name: postgres-db-table-sync
+description: A Helm chart to sync postgres tables from one db to another db using psql copy
+type: application
+version: 0.1.0
+appVersion: 0.1.0
+maintainers:
+  - name: Ambiata
+    email: info@ambiata.com
+    url: www.ambiata.com
