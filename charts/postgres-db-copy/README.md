@@ -2,6 +2,7 @@
 
 A chart to copy multiple postgres tables from one database to another one using pg_dump and pg_restore.
 The chart creates the table and syncs the data.
+It will truncate and then load the new data in a single transaction.
 
 ## Parameters for this job   
 
