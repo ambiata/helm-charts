@@ -24,6 +24,8 @@ users: []
 #   accesses:
 #   - db: db_1
 #     readOnly: true (false by default)
+#     schemas: (used only if readOnly is true, additional schemas the user will have access to. It will always include `public` even if omitted from this list and/or the list is not present/empty)
+#     - pub
 #   - db: db_2
 
 postgresqlAdminCredentials:
