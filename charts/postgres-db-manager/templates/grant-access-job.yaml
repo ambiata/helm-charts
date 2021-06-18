@@ -46,6 +46,7 @@ spec:
                 psql -c "GRANT CONNECT ON DATABASE \"${DB}\" TO \"${USER}\";"
                 psql -d ${DB} -c "GRANT USAGE ON SCHEMA ${SCHEMA} TO \"${USER}\";"
                 psql -d ${DB} -c "GRANT SELECT ON ALL TABLES IN SCHEMA ${SCHEMA} TO \"${USER}\";"
+                psql -d ${DB} -c "ALTER DEFAULT PRIVILEGES IN SCHEMA ${SCHEMA} GRANT SELECT ON TABLES TO \"${USER}\";"     
                 psql -d ${DB} -c "GRANT SELECT ON ALL SEQUENCES IN SCHEMA ${SCHEMA} TO \"${USER}\";"
                 echo "${USER} now has readonly access to all the tables in the schema ${SCHEMA} in the database ${DB}"
               done
