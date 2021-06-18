@@ -12,6 +12,19 @@ users:
   accesses:
   - db: my-app
     readOnly: true
+- username: bob
+  passwordSecretName: my-secret
+  passwordSecretKey: bob-db-password
+  accesses:
+  - db: my-app
+    readOnly: true
+    schemas:
+    - pub
+- username: cloe
+  passwordSecretName: my-secret
+  passwordSecretKey: cloe-db-password
+  accesses:
+  - db: my-app
 
 # Way to connect to the database
 postgresqlAdminCredentials:
