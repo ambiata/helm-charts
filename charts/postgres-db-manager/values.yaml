@@ -26,6 +26,8 @@ users: []
 #     readOnly: true (false by default)
 #     schemas: (used only if readOnly is true, additional schemas the user will have access to. It will always include `public` even if omitted from this list and/or the list is not present/empty)
 #     - pub
+#     targetUsers: (array used only if readOnly is true, if empty or not provided equivalent to the admin user selected in the postgresAdminCredentials. Will give accesses to all the future tables this user will create in the set schemas.)
+#     - bob
 #   - db: db_2
 
 postgresqlAdminCredentials:
