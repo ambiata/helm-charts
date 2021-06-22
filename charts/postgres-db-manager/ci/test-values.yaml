@@ -25,6 +25,15 @@ users:
   passwordSecretKey: cloe-db-password
   accesses:
   - db: my-app
+- username: daniel
+  passwordSecretName: my-secret
+  passwordSecretKey: daniel-db-password
+  accesses:
+  - db: my-app
+    readOnly: true
+    schemas:
+    - pub
+    targetUser: alice
 
 # Way to connect to the database
 postgresqlAdminCredentials:

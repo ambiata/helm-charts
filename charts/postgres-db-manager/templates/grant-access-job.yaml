@@ -46,9 +46,15 @@ spec:
                 psql -c "GRANT CONNECT ON DATABASE \"${DB}\" TO \"${USER}\";"
                 psql -d ${DB} -c "GRANT USAGE ON SCHEMA ${SCHEMA} TO \"${USER}\";"
                 psql -d ${DB} -c "GRANT SELECT ON ALL TABLES IN SCHEMA ${SCHEMA} TO \"${USER}\";"
-                psql -d ${DB} -c "ALTER DEFAULT PRIVILEGES IN SCHEMA ${SCHEMA} GRANT SELECT ON TABLES TO \"${USER}\";"     
                 psql -d ${DB} -c "GRANT SELECT ON ALL SEQUENCES IN SCHEMA ${SCHEMA} TO \"${USER}\";"
-                echo "${USER} now has readonly access to all the tables in the schema ${SCHEMA} in the database ${DB}"
+                if [ -z "${TARGET_USER}" ]
+                then
+                  psql -d ${DB} -c "ALTER DEFAULT PRIVILEGES IN SCHEMA ${SCHEMA} GRANT SELECT ON TABLES TO \"${USER}\";"
+                  echo "${USER} now has readonly access to all the tables in the schema ${SCHEMA} in the database ${DB}, and future tables created by the user running this script (probably admin user)."
+                else
+                  psql -d ${DB} -c "ALTER DEFAULT PRIVILEGES FOR USER \"${TARGET_USER}\" IN SCHEMA ${SCHEMA} GRANT SELECT ON TABLES TO \"${USER}\";"
+                  echo "${USER} now has readonly access to all the tables in the schema ${SCHEMA} in the database ${DB}, and future tables created by the user ${TARGET_USER}."
+                fi
               done
             else
               psql -c "GRANT ALL PRIVILEGES ON DATABASE \"${DB}\" TO \"${USER}\";"
@@ -63,6 +69,10 @@ spec:
           value: {{ .readOnly | default false | quote }}
         - name: SCHEMAS
           value: {{ .schemas | default ( list "" ) | concat ( list "public" ) | join " " | trim }}
+        {{- if .targetUser }}
+        - name: TARGET_USER
+          value: {{ .targetUser }}
+        {{- end }}
         {{- include "postgres-db-manager.postgresqlAdminCredentialEnvs" $.Values.postgresqlAdminCredentials | indent 8 }}
       restartPolicy: Never
 ---
