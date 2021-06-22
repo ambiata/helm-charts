@@ -20,6 +20,7 @@ users:
     readOnly: true
     schemas:
     - pub
+    targetUsers: []
 - username: cloe
   passwordSecretName: my-secret
   passwordSecretKey: cloe-db-password
@@ -33,7 +34,9 @@ users:
     readOnly: true
     schemas:
     - pub
-    targetUser: alice
+    targetUsers:
+    - alice
+    - bob
 
 # Way to connect to the database
 postgresqlAdminCredentials:

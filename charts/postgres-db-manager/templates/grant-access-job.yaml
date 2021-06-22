@@ -52,8 +52,11 @@ spec:
                   psql -d ${DB} -c "ALTER DEFAULT PRIVILEGES IN SCHEMA ${SCHEMA} GRANT SELECT ON TABLES TO \"${USER}\";"
                   echo "${USER} now has readonly access to all the tables in the schema ${SCHEMA} in the database ${DB}, and future tables created by the user running this script (probably admin user)."
                 else
-                  psql -d ${DB} -c "ALTER DEFAULT PRIVILEGES FOR USER \"${TARGET_USER}\" IN SCHEMA ${SCHEMA} GRANT SELECT ON TABLES TO \"${USER}\";"
-                  echo "${USER} now has readonly access to all the tables in the schema ${SCHEMA} in the database ${DB}, and future tables created by the user ${TARGET_USER}."
+                  for TARGET_USER in ${TARGET_USERS}
+                  do
+                    psql -d ${DB} -c "ALTER DEFAULT PRIVILEGES FOR USER \"${TARGET_USER}\" IN SCHEMA ${SCHEMA} GRANT SELECT ON TABLES TO \"${USER}\";"
+                    echo "${USER} now has readonly access to all the tables in the schema ${SCHEMA} in the database ${DB}, and future tables created by the user ${TARGET_USER}."
+                  done
                 fi
               done
             else
@@ -69,9 +72,9 @@ spec:
           value: {{ .readOnly | default false | quote }}
         - name: SCHEMAS
           value: {{ .schemas | default ( list "" ) | concat ( list "public" ) | join " " | trim }}
-        {{- if .targetUser }}
-        - name: TARGET_USER
-          value: {{ .targetUser }}
+        {{- if .targetUsers }}
+        - name: TARGET_USERS
+          value: {{ .targetUsers | join " " | trim }}
         {{- end }}
         {{- include "postgres-db-manager.postgresqlAdminCredentialEnvs" $.Values.postgresqlAdminCredentials | indent 8 }}
       restartPolicy: Never
