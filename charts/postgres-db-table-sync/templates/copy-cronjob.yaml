@@ -45,7 +45,7 @@ spec:
                 -e <<EOF
                 BEGIN;
                 {{- range $tableMapping:= $.Values.tableMappings }}
-                COPY {{ $tableMapping.inputTable }} TO '/tmp/{{ $tableMapping.inputTable }}.dump';
+                \copy {{ $tableMapping.inputTable }} TO '/tmp/{{ $tableMapping.inputTable }}.dump';
                 {{- end }}
                 COMMIT;
                 EOF;
@@ -60,7 +60,7 @@ spec:
                 BEGIN;
                 {{- range $tableMapping:= $.Values.tableMappings }}
                 TRUNCATE TABLE {{ $tableMapping.outputTable }};
-                COPY {{ $tableMapping.outputTable }} FROM '/tmp/{{ $tableMapping.inputTable }}.dump';
+                \copy {{ $tableMapping.outputTable }} FROM '/tmp/{{ $tableMapping.inputTable }}.dump';
                 {{- end }}
                 COMMIT;
                 EOF;
