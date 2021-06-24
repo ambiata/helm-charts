@@ -42,13 +42,13 @@ spec:
                 -d $SOURCE_DB_NAME \
                 -U $SOURCE_DB_USER \
                 -p $SOURCE_DB_PORT \
-                -e <<EOF
+                -e << EOF
                 BEGIN;
                 {{- range $tableMapping:= $.Values.tableMappings }}
                 \copy {{ $tableMapping.inputTable }} TO '/tmp/{{ $tableMapping.inputTable }}.dump';
                 {{- end }}
                 COMMIT;
-                EOF;
+              EOF
               
               echo "Copy the tables to ${TARGET_DB_HOST}:${TARGET_DB_NAME}";
               PGPASSWORD=${TARGET_DB_PASSWORD} psql \
@@ -56,14 +56,14 @@ spec:
                 -d $TARGET_DB_NAME \
                 -U $TARGET_DB_USER \
                 -p $TARGET_DB_PORT \
-                -e <<EOF
+                -e << EOF
                 BEGIN;
                 {{- range $tableMapping:= $.Values.tableMappings }}
                 TRUNCATE TABLE {{ $tableMapping.outputTable }};
                 \copy {{ $tableMapping.outputTable }} FROM '/tmp/{{ $tableMapping.inputTable }}.dump';
                 {{- end }}
                 COMMIT;
-                EOF;
+              EOF
             env:
                 # Source DB 
               - name: SOURCE_DB_HOST
