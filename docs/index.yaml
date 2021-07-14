@@ -3,9 +3,9 @@ entries:
   job-scheduler:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2021-07-14T15:13:44.058057+10:00"
+    created: "2021-07-14T15:21:21.871657+10:00"
     description: A Helm chart for managing cron jobs.
-    digest: d7fb076b94e489ff6e126e6309b9b08617deeefb0810f2430c85f1467f97b340
+    digest: 4d62347343144acc775d593cd47411f378f7b0bc5d213026b0a57ec6275122a5
     maintainers:
     - email: info@ambiata.com
       name: Ambiata
@@ -18,9 +18,9 @@ entries:
   minio-manager:
   - apiVersion: v2
     appVersion: 0.0.3
-    created: "2021-07-14T15:13:44.059317+10:00"
+    created: "2021-07-14T15:21:21.872405+10:00"
     description: Manage buckets, users and accesses for minio
-    digest: aa44d2855790fe1e318fd7a3ce9a4f6231ad88459a0afef051d0919e0a77a4a3
+    digest: eed50cb70b3c8939f8523bbb3b4544eef806f845a538b9096f60952b3cd88656
     maintainers:
     - email: info@ambiata.com
       name: Ambiata
@@ -33,10 +33,10 @@ entries:
   postgres-db-copy:
   - apiVersion: v2
     appVersion: 0.1.0
-    created: "2021-07-14T15:13:44.060067+10:00"
+    created: "2021-07-14T15:21:21.873006+10:00"
     description: A Helm chart to copy postgres tables from one db to another db using
       pg_dump and pg_restore
-    digest: 03a44f83fdad375029a577f37c20e40243b904e5301f89215aa4c08579c96446
+    digest: 0eea5bb3768882be41f33f408f2b98c32fcb7b1afb902fd1e9a2f5e590d7ae1a
     maintainers:
     - email: info@ambiata.com
       name: Ambiata
@@ -49,9 +49,9 @@ entries:
   postgres-db-manager:
   - apiVersion: v2
     appVersion: 0.0.1
-    created: "2021-07-14T15:13:44.061215+10:00"
+    created: "2021-07-14T15:21:21.87366+10:00"
     description: Manage databases, users and accesses for postgres db
-    digest: a073734af598414afd1a4670924a442a9b668870a010597ad38aed6431103c2b
+    digest: 65036931e84fad41bb28e1a66219106611aa5964659180a173755935a08749e9
     maintainers:
     - email: info@ambiata.com
       name: Ambiata
@@ -64,9 +64,9 @@ entries:
   postgres-db-sync:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2021-07-14T15:13:44.06226+10:00"
+    created: "2021-07-14T15:21:21.874315+10:00"
     description: Sync postgres DB tables together based on a timestamp column
-    digest: 8f8adbb59336dd41e6472575abf51e737f979c84455b80d6bc5bab45600da9bc
+    digest: 1897302b7735217c039d9bf8499ff5806acf48f2579eb89b8edaf71cc203b99c
     icon: https://en.wikipedia.org/wiki/PostgreSQL#/media/File:Postgresql_elephant.svg
     maintainers:
     - email: info@ambiata.com
@@ -80,10 +80,10 @@ entries:
   postgres-db-table-sync:
   - apiVersion: v2
     appVersion: 0.1.0
-    created: "2021-07-14T15:13:44.063122+10:00"
+    created: "2021-07-14T15:21:21.874946+10:00"
     description: A Helm chart to sync postgres tables from one db to another db using
       psql copy
-    digest: 06cf7406b7b883fc5caa466dddb03640cd28a6a6dbb36e8a027eccba0f70c9a8
+    digest: a177b2ced39c77112a9f898f95b642e9203a3177f891428e4f86c7a172c33ceb
     maintainers:
     - email: info@ambiata.com
       name: Ambiata
@@ -93,4 +93,4 @@ entries:
     urls:
     - https://ambiata.github.io/helm-charts/postgres-db-table-sync-0.1.0.tgz
     version: 0.1.0
-generated: "2021-07-14T15:13:44.056404+10:00"
+generated: "2021-07-14T15:21:21.868792+10:00"
