@@ -3,9 +3,9 @@
 # Declare variables to be passed into your templates.
 
 image:
-  repository: "docker.io/bitnami/postgresql"
+  repository: "docker.io/bitnamilegacy/postgresql"
   pullPolicy: IfNotPresent
-  tag: "11.7.0-debian-10-r43"
+  tag: "11.7.0"
 
 imagePullSecrets: []
 nameOverride: ""
