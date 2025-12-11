@@ -1,0 +1,19 @@
+podAnnotations:
+  logging: logging-splunk
+
+sourceDB:
+  host: "my-release-3-postgresql"
+  name: "sourceDB"
+  user: "postgres"
+  secret: "my-release-3-postgresql"
+  passwordKey: postgresql-password
+
+targetDB:
+  host: "my-release-3-postgresql"
+  name: "targetDB"
+  user: "postgres"
+  secret: "my-release-3-postgresql"
+  passwordKey: postgresql-password
+
+tables:
+  - customers

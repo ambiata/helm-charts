@@ -1,0 +1,105 @@
+
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ include "postgres-db-copy-2.fullname" . }}
+  labels:
+    {{- include "postgres-db-copy-2.labels" . | nindent 4 }}
+spec:
+  schedule: {{ $.Values.cronjob.schedule | quote }}
+  concurrencyPolicy: "Forbid"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+         {{- with .Values.podAnnotations }}
+          annotations:
+            {{- toYaml . | nindent 12 }}
+         {{- end }}
+        spec:
+          restartPolicy: {{ $.Values.cronjob.restartPolicy }}
+          {{- if $.Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml $.Values.imagePullSecrets | nindent 12 }}
+          {{- end }}
+          containers:
+          - name: postgres-to-postgres-copy-cronjob
+            image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+            imagePullPolicy: {{ $.Values.image.pullPolicy }}
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+            
+              echo "Dump data for the following tables from ${SOURCE_DB_HOST}:${SOURCE_DB_NAME}:
+              {{- range $table := $.Values.tables }}
+                - {{ $table }}
+              {{- end }}
+              "
+            
+              # Create a data-only dump (custom format for pg_restore flexibility).
+              PGPASSWORD=${SOURCE_DB_PASSWORD} pg_dump -Fc \
+                --data-only \
+                --no-privileges \
+                --no-owner \
+                -h ${SOURCE_DB_HOST} \
+                -U ${SOURCE_DB_USER} \
+                -p ${SOURCE_DB_PORT} \
+                {{- range $table := $.Values.tables }}
+                -t {{ $table }} \
+                {{- end }}
+                ${SOURCE_DB_NAME} \
+                > /tmp/db.dump
+            
+              echo "Truncating target tables in ${TARGET_DB_HOST}:${TARGET_DB_NAME} prior to restore..."
+              {{- range $table := $.Values.tables }}
+              PGPASSWORD=${TARGET_DB_PASSWORD} psql \
+                -h ${TARGET_DB_HOST} \
+                -d ${TARGET_DB_NAME} \
+                -U ${TARGET_DB_USER} \
+                -p ${TARGET_DB_PORT} \
+                -v ON_ERROR_STOP=1 \
+                -c "TRUNCATE TABLE {{ $table }};"
+              {{- end }}
+            
+              echo "Restoring data into ${TARGET_DB_HOST}:${TARGET_DB_NAME}..."
+              PGPASSWORD=${TARGET_DB_PASSWORD} pg_restore \
+                --data-only \
+                --no-privileges \
+                --no-owner \
+                --single-transaction \
+                -h ${TARGET_DB_HOST} \
+                -d ${TARGET_DB_NAME} \
+                -U ${TARGET_DB_USER} \
+                -p ${TARGET_DB_PORT} \
+                /tmp/db.dump ;
+            env:
+                # Source DB 
+              - name: SOURCE_DB_HOST
+                value: {{ required "Source db host is required" .Values.sourceDB.host }}
+              - name: SOURCE_DB_NAME
+                value: {{ .Values.sourceDB.name }}
+              - name: SOURCE_DB_USER
+                value: {{ .Values.sourceDB.user }}
+              - name: SOURCE_DB_PORT
+                value: {{ .Values.sourceDB.port | quote }}
+              - name: SOURCE_DB_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ required "Source db secret is required" .Values.sourceDB.secret }}
+                    key: {{ .Values.sourceDB.passwordKey }}
+                # Target DB 
+              - name: TARGET_DB_HOST
+                value: {{ required "Target db host is required" .Values.targetDB.host }}
+              - name: TARGET_DB_NAME
+                value: {{ .Values.targetDB.name }}
+              - name: TARGET_DB_USER
+                value: {{ .Values.targetDB.user }}
+              - name: TARGET_DB_PORT
+                value: {{ .Values.targetDB.port | quote }}
+              - name: TARGET_DB_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ required "Target db secret is required" .Values.targetDB.secret }}
+                    key: {{ .Values.targetDB.passwordKey }}
