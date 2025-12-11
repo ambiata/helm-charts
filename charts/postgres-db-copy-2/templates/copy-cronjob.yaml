@@ -36,9 +36,9 @@ spec:
               {{- range $table := $.Values.tables }}
                 - {{ $table }}
               {{- end }}
-              "
+              ";
             
-              # Create a data-only dump (custom format for pg_restore flexibility).
+              echo "Create a data-only dump (custom format for pg_restore flexibility).";
               PGPASSWORD=${SOURCE_DB_PASSWORD} pg_dump -Fc \
                 --data-only \
                 --no-privileges \
@@ -50,9 +50,9 @@ spec:
                 -t {{ $table }} \
                 {{- end }}
                 ${SOURCE_DB_NAME} \
-                > /tmp/db.dump
+                > /tmp/db.dump ;
             
-              echo "Truncating target tables in ${TARGET_DB_HOST}:${TARGET_DB_NAME} prior to restore..."
+              echo "Truncating target tables in ${TARGET_DB_HOST}:${TARGET_DB_NAME} prior to restore...";
               {{- range $table := $.Values.tables }}
               PGPASSWORD=${TARGET_DB_PASSWORD} psql \
                 -h ${TARGET_DB_HOST} \
@@ -63,7 +63,7 @@ spec:
                 -c "TRUNCATE TABLE {{ $table }};"
               {{- end }}
             
-              echo "Restoring data into ${TARGET_DB_HOST}:${TARGET_DB_NAME}..."
+              echo "Restoring data into ${TARGET_DB_HOST}:${TARGET_DB_NAME}...";
               PGPASSWORD=${TARGET_DB_PASSWORD} pg_restore \
                 --data-only \
                 --no-privileges \
